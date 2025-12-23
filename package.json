@@ -1,0 +1,11 @@
+{
+  "name": "bonemarrow",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc --build --clean & tsc --build --verbose"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
