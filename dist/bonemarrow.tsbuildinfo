@@ -1,1 +1,0 @@
-{"root":["../src/index.ts","../src/core/emitter.ts","../src/core/fetch.ts","../src/core/scope.ts","../src/data/collection.ts","../src/data/model.ts","../src/dom/el.ts","../src/dom/elements.ts","../src/refresh/sequentialrefresh.ts","../src/view/view.ts"],"version":"5.9.3"}
