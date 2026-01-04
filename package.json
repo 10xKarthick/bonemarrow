@@ -1,11 +1,13 @@
 {
   "name": "bonemarrow",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "scripts": {
-    "build": "tsc --build --clean & tsc --build --verbose"
+    "build": "esbuild src/index.ts --bundle --format=iife --global-name=bone --target=es2019 --outfile=dist/bonemarrow.js",
+    "publish": "esbuild src/index.ts --bundle --format=iife --global-name=bone --target=es2019 --minify --outfile=dist/bonemarrow.min.js"
   },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "esbuild": "^0.27.2"
   }
 }
