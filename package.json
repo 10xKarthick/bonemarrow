@@ -6,6 +6,7 @@
 
   "main": "dist/bonemarrow.js",
   "unpkg": "dist/bonemarrow.js",
+  "jsdelivr": "dist/bonemarrow.js",
 
   "files": ["dist"],
 
