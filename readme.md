@@ -1,4 +1,4 @@
-# 🦴 BoneMarrow
+## 🦴 BoneMarrow
 
 **BoneMarrow** is a lightweight, lifecycle-aware JavaScript/TypeScript library for building structured UI logic on top of server-rendered HTML — without jQuery, virtual DOMs, or heavyweight frameworks.
 
@@ -187,15 +187,17 @@ Perfect for:
 
 ---
 
-## Size
+## Bundle Size
 
-Approximate sizes (production build):
+BoneMarrow is intentionally small and dependency-free.
 
-* ~9 KB raw
-* ~4–5 KB minified
-* ~2–3 KB gzip
+| File                     | Size        |
+| ------------------------ | ----------- |
+| `dist/bonemarrow.js`     | **27.6 kB** |
+| `dist/bonemarrow.min.js` | **13.3 kB** |
 
-Smaller than most “micro” libraries, without sacrificing structure.
+Sizes shown are **raw file sizes**, not gzipped.
+BoneMarrow favors clarity and debuggability over compression tricks.
 
 ---
 
@@ -222,4 +224,5 @@ MIT © Karthick Raj
 > Boring code scales.**
 
 If you want clarity, explicit lifecycles, and predictable async behavior without the weight of a framework, BoneMarrow is built for that.
+
 

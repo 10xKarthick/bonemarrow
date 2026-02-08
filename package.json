@@ -1,13 +1,17 @@
 {
   "name": "bonemarrow",
-  "version": "0.1.0",
-  "private": false,
+  "version": "1.1.0",
+  "description": "A modern jQuery + Backbone replacement",
+  "license": "MIT",
+
+  "main": "dist/bonemarrow.js",
+  "unpkg": "dist/bonemarrow.js",
+
+  "files": ["dist"],
+
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --format=iife --global-name=bone --target=es2019 --outfile=dist/bonemarrow.js",
-    "publish": "esbuild src/index.ts --bundle --format=iife --global-name=bone --target=es2019 --minify --outfile=dist/bonemarrow.min.js"
-  },
-  "devDependencies": {
-    "typescript": "^5.9.3",
-    "esbuild": "^0.27.2"
+    "build": "npm run build:iife && npm run build:min",
+    "build:iife": "esbuild src/index.ts --bundle --format=iife --global-name=bone --target=es2019 --outfile=dist/bonemarrow.js",
+    "build:min": "esbuild src/index.ts --bundle --format=iife --global-name=bone --target=es2019 --minify --outfile=dist/bonemarrow.min.js"
   }
 }
