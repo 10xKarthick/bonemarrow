@@ -4,13 +4,9 @@
     "module": "ESNext",
     "lib": ["ES2019", "DOM"],
     "strict": true,
-
     "declaration": true,
-    "emitDeclarationOnly": true,
-    "declarationDir": "dist",
-
+    "emitDeclarationOnly": false,
     "sourceMap": false,
-
     "incremental": false,
     "composite": false,
     "skipLibCheck": true

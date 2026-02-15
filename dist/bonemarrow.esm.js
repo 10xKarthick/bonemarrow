@@ -32,8 +32,7 @@ function createScopeInternal(parent) {
       return child;
     },
     dispose() {
-      if (disposed)
-        return;
+      if (disposed) return;
       disposed = true;
       for (const child of children) {
         child.dispose();
@@ -62,12 +61,10 @@ function createScopeInternal(parent) {
 }
 var windowScope = null;
 function getWindowScope() {
-  if (windowScope)
-    return windowScope;
+  if (windowScope) return windowScope;
   windowScope = createScopeInternal(null);
   const disposeAll = () => {
-    if (!windowScope)
-      return;
+    if (!windowScope) return;
     windowScope.dispose();
     windowScope = null;
   };
@@ -78,6 +75,189 @@ function getWindowScope() {
 function createScope() {
   return getWindowScope().createChild();
 }
+
+// src/core/emitter.ts
+var TypedEmitter = class {
+  constructor(options) {
+    this.events = /* @__PURE__ */ new Map();
+    this.debugMode = false;
+    var _a;
+    this.debugMode = (_a = options == null ? void 0 : options.debug) != null ? _a : false;
+  }
+  /**
+   * Register an event listener.
+   */
+  on(event, fn, scope) {
+    let set = this.events.get(event);
+    if (!set) {
+      set = /* @__PURE__ */ new Set();
+      this.events.set(event, set);
+    }
+    set.add(fn);
+    if (this.debugMode) {
+      console.log(
+        `[Emitter] Listener added for "${String(event)}" (total: ${set.size})`
+      );
+    }
+    let disposed = false;
+    const cleanup = () => {
+      if (disposed) return;
+      disposed = true;
+      set.delete(fn);
+      if (set.size === 0) {
+        this.events.delete(event);
+      }
+      if (this.debugMode) {
+        console.log(
+          `[Emitter] Listener removed for "${String(event)}" (remaining: ${set.size})`
+        );
+      }
+    };
+    scope == null ? void 0 : scope.onDispose(cleanup);
+    return cleanup;
+  }
+  /**
+   * Register a one-time event listener.
+   */
+  once(event, fn, scope) {
+    const wrapper = (...args) => {
+      cleanup();
+      fn(...args);
+    };
+    const cleanup = this.on(event, wrapper, scope);
+    return cleanup;
+  }
+  /**
+   * Emit an event to all registered listeners.
+   * Errors are isolated per handler.
+   */
+  emit(event, ...args) {
+    const handlers = this.events.get(event);
+    if (!handlers || handlers.size === 0) {
+      if (this.debugMode) {
+        console.log(`[Emitter] No listeners for "${String(event)}"`);
+      }
+      return;
+    }
+    if (this.debugMode) {
+      console.log(
+        `[Emitter] Emitting "${String(event)}" to ${handlers.size} listener(s)`
+      );
+    }
+    const handlersArray = Array.from(handlers);
+    for (const fn of handlersArray) {
+      try {
+        fn(...args);
+      } catch (error) {
+        console.error(
+          `[Emitter] Error in handler for "${String(event)}":`,
+          error
+        );
+      }
+    }
+  }
+  /**
+   * Remove all listeners for a specific event.
+   */
+  off(event) {
+    const deleted = this.events.delete(event);
+    if (this.debugMode && deleted) {
+      console.log(
+        `[Emitter] All listeners removed for "${String(event)}"`
+      );
+    }
+  }
+  /**
+   * Remove all listeners for all events.
+   */
+  clear() {
+    const count = this.events.size;
+    this.events.clear();
+    if (this.debugMode && count > 0) {
+      console.log(
+        `[Emitter] Cleared all listeners for ${count} event(s)`
+      );
+    }
+  }
+  hasListeners(event) {
+    var _a, _b;
+    return ((_b = (_a = this.events.get(event)) == null ? void 0 : _a.size) != null ? _b : 0) > 0;
+  }
+  listenerCount(event) {
+    var _a, _b;
+    return (_b = (_a = this.events.get(event)) == null ? void 0 : _a.size) != null ? _b : 0;
+  }
+  eventNames() {
+    return Array.from(this.events.keys());
+  }
+  setDebug(enabled) {
+    this.debugMode = enabled;
+  }
+};
+var Emitter = class {
+  constructor() {
+    this.events = /* @__PURE__ */ new Map();
+  }
+  on(event, fn, scope) {
+    let set = this.events.get(event);
+    if (!set) {
+      set = /* @__PURE__ */ new Set();
+      this.events.set(event, set);
+    }
+    set.add(fn);
+    let disposed = false;
+    const cleanup = () => {
+      if (disposed) return;
+      disposed = true;
+      set.delete(fn);
+      if (set.size === 0) {
+        this.events.delete(event);
+      }
+    };
+    scope == null ? void 0 : scope.onDispose(cleanup);
+    return cleanup;
+  }
+  once(event, fn, scope) {
+    const wrapper = (...args) => {
+      cleanup();
+      fn(...args);
+    };
+    const cleanup = this.on(event, wrapper, scope);
+    return cleanup;
+  }
+  emit(event, ...args) {
+    const handlers = this.events.get(event);
+    if (!handlers || handlers.size === 0) return;
+    const handlersArray = Array.from(handlers);
+    for (const fn of handlersArray) {
+      try {
+        fn(...args);
+      } catch (error) {
+        console.error(
+          `Error in event handler for "${event}":`,
+          error
+        );
+      }
+    }
+  }
+  off(event) {
+    this.events.delete(event);
+  }
+  clear() {
+    this.events.clear();
+  }
+  hasListeners(event) {
+    var _a, _b;
+    return ((_b = (_a = this.events.get(event)) == null ? void 0 : _a.size) != null ? _b : 0) > 0;
+  }
+  listenerCount(event) {
+    var _a, _b;
+    return (_b = (_a = this.events.get(event)) == null ? void 0 : _a.size) != null ? _b : 0;
+  }
+  eventNames() {
+    return Array.from(this.events.keys());
+  }
+};
 
 // src/core/fetch.ts
 function requestKey(url, init) {
@@ -168,74 +348,6 @@ async function fetchJson(url, options = {}) {
   return promise;
 }
 
-// src/core/emitter.ts
-var Emitter = class {
-  constructor() {
-    this.events = /* @__PURE__ */ new Map();
-  }
-  on(event, fn, scope) {
-    let set = this.events.get(event);
-    if (!set) {
-      set = /* @__PURE__ */ new Set();
-      this.events.set(event, set);
-    }
-    set.add(fn);
-    let disposed = false;
-    const cleanup = () => {
-      if (disposed)
-        return;
-      disposed = true;
-      set.delete(fn);
-      if (set.size === 0) {
-        this.events.delete(event);
-      }
-    };
-    scope == null ? void 0 : scope.onDispose(cleanup);
-    return cleanup;
-  }
-  once(event, fn, scope) {
-    const wrapper = (...args) => {
-      cleanup();
-      fn(...args);
-    };
-    const cleanup = this.on(event, wrapper, scope);
-    return cleanup;
-  }
-  emit(event, ...args) {
-    const handlers = this.events.get(event);
-    if (!handlers || handlers.size === 0)
-      return;
-    const handlersArray = Array.from(handlers);
-    for (const fn of handlersArray) {
-      try {
-        fn(...args);
-      } catch (error) {
-        console.error(
-          `Error in event handler for "${event}":`,
-          error
-        );
-      }
-    }
-  }
-  off(event) {
-    this.events.delete(event);
-  }
-  clear() {
-    this.events.clear();
-  }
-  hasListeners(event) {
-    var _a, _b;
-    return ((_b = (_a = this.events.get(event)) == null ? void 0 : _a.size) != null ? _b : 0) > 0;
-  }
-  listenerCount(event) {
-    var _a, _b;
-    return (_b = (_a = this.events.get(event)) == null ? void 0 : _a.size) != null ? _b : 0;
-  }
-  eventNames() {
-    return Array.from(this.events.keys());
-  }
-};
-
 // src/refresh/sequentialRefresh.ts
 function startSequentialRefresh(fn, opts) {
   const {
@@ -258,8 +370,7 @@ function startSequentialRefresh(fn, opts) {
     return interval * multiplier;
   };
   const stop = () => {
-    if (stopped)
-      return;
+    if (stopped) return;
     stopped = true;
     if (timeoutId !== void 0) {
       clearTimeout(timeoutId);
@@ -267,8 +378,7 @@ function startSequentialRefresh(fn, opts) {
     }
   };
   const loop = async () => {
-    if (stopped)
-      return;
+    if (stopped) return;
     if (isRunning) {
       console.warn(
         "[SequentialRefresh] Previous execution still running"
@@ -318,6 +428,42 @@ function startSequentialRefresh(fn, opts) {
   }
   scope.onDispose(stop);
   return stop;
+}
+function createPausableRefresh(fn, opts) {
+  let stopFn = null;
+  let paused = false;
+  const start = () => {
+    if (stopFn) return;
+    stopFn = startSequentialRefresh(fn, opts);
+  };
+  const pause = () => {
+    if (paused) return;
+    paused = true;
+    if (stopFn) {
+      stopFn();
+      stopFn = null;
+    }
+  };
+  const resume = () => {
+    if (!paused) return;
+    paused = false;
+    start();
+  };
+  const stop = () => {
+    paused = false;
+    if (stopFn) {
+      stopFn();
+      stopFn = null;
+    }
+  };
+  start();
+  return {
+    pause,
+    resume,
+    stop,
+    isPaused: () => paused,
+    isRunning: () => stopFn !== null && !paused
+  };
 }
 
 // src/data/model.ts
@@ -389,8 +535,7 @@ var Model = class {
     );
   }
   destroy() {
-    if (this.destroyed)
-      return;
+    if (this.destroyed) return;
     this.destroyed = true;
     this.emitter.clear();
   }
@@ -542,8 +687,7 @@ var Collection = class {
     );
   }
   destroy() {
-    if (this.destroyed)
-      return;
+    if (this.destroyed) return;
     this.destroyed = true;
     this.items = [];
     this.emitter.clear();
@@ -897,6 +1041,16 @@ function el(input, root) {
   );
   return new Elements([]);
 }
+function elFromHtml(html) {
+  const template = document.createElement("template");
+  template.innerHTML = html.trim();
+  return new Elements(
+    Array.from(template.content.children)
+  );
+}
+function isElements(input) {
+  return input instanceof Elements;
+}
 
 // src/view/view.ts
 var View = class {
@@ -977,8 +1131,7 @@ var View = class {
     return this.model;
   }
   destroy() {
-    if (this.destroyed)
-      return;
+    if (this.destroyed) return;
     this.destroyed = true;
     for (const child of this.children) {
       try {
@@ -1042,12 +1195,28 @@ var View = class {
     }
   }
 };
+function createView(ViewClass, root, model, options) {
+  const element = typeof root === "string" ? document.querySelector(root) : root;
+  if (!element) {
+    throw new Error(
+      `[createView] Element not found: ${root}`
+    );
+  }
+  return new ViewClass(element, model, options);
+}
 export {
   Collection,
   Elements,
+  Emitter,
   Model,
+  TypedEmitter,
   View,
+  createPausableRefresh,
   createScope,
+  createView,
   el,
-  fetchJson
+  elFromHtml,
+  fetchJson,
+  isElements,
+  startSequentialRefresh
 };
