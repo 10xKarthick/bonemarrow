@@ -1,16 +1,19 @@
 {
   "compilerOptions": {
     "target": "ES2019",
-    "module": "none",
+    "module": "ESNext",
     "lib": ["ES2019", "DOM"],
     "strict": true,
 
-    "outFile": "dist/bonemarrow.js",
-    "sourceMap": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "dist",
+
+    "sourceMap": false,
 
     "incremental": false,
     "composite": false,
-    "declaration": false
+    "skipLibCheck": true
   },
   "include": ["src/**/*.ts"]
 }

@@ -4,15 +4,42 @@
   "description": "A modern jQuery + Backbone replacement",
   "license": "MIT",
 
-  "main": "dist/bonemarrow.js",
-  "unpkg": "dist/bonemarrow.js",
-  "jsdelivr": "dist/bonemarrow.js",
+  "main": "./dist/bonemarrow.js",
+  "module": "./dist/bonemarrow.esm.js",
+  "types": "./dist/index.d.ts",
+
+  "exports": {
+    ".": {
+      "import": "./dist/bonemarrow.esm.js",
+      "require": "./dist/bonemarrow.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+
+  "unpkg": "./dist/bonemarrow.js",
+  "jsdelivr": "./dist/bonemarrow.js",
 
   "files": ["dist"],
 
+  "sideEffects": false,
+
   "scripts": {
-    "build": "npm run build:iife && npm run build:min",
+    "build": "npm run clean && npm run build:types && npm run build:esm && npm run build:iife && npm run build:min",
+
+    "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
+
+    "build:types": "tsc",
+
+    "build:esm": "esbuild src/index.ts --bundle --format=esm --target=es2019 --outfile=dist/bonemarrow.esm.js",
+
     "build:iife": "esbuild src/index.ts --bundle --format=iife --global-name=bone --target=es2019 --outfile=dist/bonemarrow.js",
+
     "build:min": "esbuild src/index.ts --bundle --format=iife --global-name=bone --target=es2019 --minify --outfile=dist/bonemarrow.min.js"
+  },
+
+  "devDependencies": {
+    "esbuild": "^0.20.0",
+    "rimraf": "^5.0.0",
+    "typescript": "^5.0.0"
   }
 }
