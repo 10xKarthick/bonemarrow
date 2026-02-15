@@ -1,83 +1,96 @@
-# BoneMarrow Documentation
+# BoneMarrow
 
-BoneMarrow is a lightweight, lifecycle-aware JavaScript/TypeScript library for structuring UI logic on top of server-rendered HTML—without jQuery, virtual DOMs, or heavyweight frameworks.
+BoneMarrow is a lightweight, lifecycle-aware JavaScript/TypeScript library for structuring UI logic on top of server-rendered HTML — without jQuery, virtual DOMs, or heavyweight frameworks.
 
-BoneMarrow provides **small, explicit primitives** for managing lifecycle, async behavior, state, and DOM interactions in a predictable way.
+It provides small, explicit primitives for managing:
+
+* Lifetime
+* Async behavior
+* State
+* DOM interaction
+* UI ownership
+
+No hidden rendering.
+No global state.
+No magic.
 
 ---
 
-## Philosophy
+# Philosophy
 
-BoneMarrow is built on a few strict ideas:
+BoneMarrow is built on strict principles:
 
 * Explicit ownership over implicit behavior
 * Lifecycle-aware code by default
 * No hidden async work
-* No global state
-* No magic rendering
-* Boring, debuggable abstractions
+* No global mutable state
+* Predictable teardown
+* Debuggable abstractions
 
 If something happens, you should be able to answer:
-**who owns it, how long it lives, and how it stops**.
+
+**Who owns it? How long does it live? How does it stop?**
 
 ---
 
-## Core Concepts
+# Installation
 
-### Scope
+### npm
 
-A `Scope` represents **lifetime and ownership**.
+```bash
+npm install bonemarrow
+```
 
-Anything attached to a scope:
+### CDN
 
-* event listeners
-* timers
-* network requests
-* child scopes
+```html
+<script src="https://unpkg.com/bonemarrow"></script>
+```
 
-…is automatically cleaned up when the scope is disposed.
+Global namespace:
 
----
-
-### Model
-
-A `Model` represents a **single observable state object**.
-
----
-
-### Collection
-
-A `Collection` represents a **list of items** with reset semantics.
+```js
+bone.createScope()
+bone.Model
+bone.Collection
+bone.View
+```
 
 ---
 
-### View
+# Core Exports
 
-A `View` owns:
-
-* a DOM root
-* a scope
-* UI behavior
-
-Views define **clear UI ownership boundaries**.
+```ts
+import {
+  createScope,
+  fetchJson,
+  Model,
+  Collection,
+  View,
+  el,
+  Elements
+} from "bonemarrow";
+```
 
 ---
 
-## Scope API
+# Scope
 
-### createScope
+A `Scope` represents ownership and lifetime.
 
-Creates a new scope attached to the window-level root scope.
+Anything attached to a scope is cleaned up when disposed.
+
+## Creating a Scope
 
 ```ts
 const scope = createScope();
 ```
 
-Scopes are lightweight and safe to create freely.
+Scopes are lightweight.
 
 ---
 
-### Scope Interface
+## Scope Interface
 
 ```ts
 interface Scope {
@@ -90,135 +103,62 @@ interface Scope {
 
 ---
 
-### signal
-
-An `AbortSignal` tied to the scope’s lifetime.
-
-Used internally for fetch cancellation and available for advanced integrations.
-
-```ts
-const scope = createScope();
-
-fetch(url, { signal: scope.signal });
-```
-
----
-
-### onDispose
-
-Registers a cleanup callback.
-
-```ts
-const scope = createScope();
-
-scope.onDispose(() => {
-  console.log("scope disposed");
-});
-```
-
-Behavior:
-
-* Called exactly once
-* Called immediately if already disposed
-
----
-
-### createChild
-
-Creates a child scope.
-
-```ts
-const parent = createScope();
-const child = parent.createChild();
-```
-
-When `parent` is disposed, `child` is disposed automatically.
-
----
-
-### dispose
-
-Disposes the scope.
-
-```ts
-scope.dispose();
-```
+## Behavior
 
 Disposing a scope:
 
-* aborts scoped fetches
-* runs cleanup callbacks
-* disposes child scopes
+* Aborts fetches tied to it
+* Runs cleanup callbacks
+* Disposes child scopes
+* Clears in-flight dedupe maps
 
 Calling `dispose()` multiple times is safe.
 
 ---
 
-## Fetch API
+# Fetch API
 
-### fetchJson
-
-Unified, lifecycle-aware fetch helper.
+Lifecycle-aware fetch helper.
 
 ```ts
-fetchJson<T>(url, options?): Promise<T>
+fetchJson<T>(url: string, options?: FetchOptions<T>): Promise<T>
 ```
 
----
-
-### Basic Example
-
-```ts
-const data = await fetchJson("/api/user/1");
-```
-
----
-
-### Fetch Options
+## Options
 
 ```ts
 interface FetchOptions<T> {
-  scope?: Scope;
-  abort?: boolean;
-  timeout?: number;
-  retryOnFailure?: number;
-  retryDelay?: number;
-  dedupe?: boolean;
-  init?: RequestInit;
-  parse?: (json: unknown) => T;
+  scope?: Scope
+  abort?: boolean
+  timeout?: number
+  retryOnFailure?: number
+  retryDelay?: number
+  dedupe?: boolean
+  init?: RequestInit
+  parse?: (json: unknown) => T
 }
 ```
 
 ---
 
-### Abort with Scope
+## Features
+
+### Scoped Abort
 
 ```ts
-const scope = createScope();
-
 fetchJson("/api/data", {
   scope,
   abort: true
 });
 ```
 
-The request is aborted automatically when the scope is disposed.
-
----
-
 ### Timeout
 
 ```ts
-fetchJson("/api/data", {
-  timeout: 3000
-});
+fetchJson("/api/data", { timeout: 3000 });
 ```
 
-Aborts the request after 3 seconds.
-
----
-
-### Retry on Failure
+### Retry
 
 ```ts
 fetchJson("/api/data", {
@@ -227,11 +167,7 @@ fetchJson("/api/data", {
 });
 ```
 
-Retries on network or HTTP failure.
-
----
-
-### Request De-duplication (Scope-local)
+### Scope-Local Deduplication
 
 ```ts
 fetchJson("/api/data", {
@@ -240,27 +176,37 @@ fetchJson("/api/data", {
 });
 ```
 
-Only one in-flight request per scope is allowed.
-No caching is performed.
+Only one in-flight request per scope.
+
+No caching.
 
 ---
 
-### Custom Parsing
+# Sequential Refresh
 
-```ts
-fetchJson("/api/user", {
-  parse: json => ({
-    id: json["id"],
-    name: json["full_name"]
-  })
-});
+Used internally by `Model.autoRefresh` and `Collection.autoRefresh`.
+
+Behavior:
+
+```
+fetch → complete → wait → fetch → complete
 ```
 
+Never overlaps.
+
+Supports:
+
+* Immediate start
+* Retry limits
+* Exponential backoff
+
 ---
 
-## Model API
+# Model
 
-### Creating a Model
+Observable state container.
+
+## Create
 
 ```ts
 const user = new Model({
@@ -271,15 +217,19 @@ const user = new Model({
 
 ---
 
+## API
+
 ### get
 
 ```ts
 user.get("name");
 ```
 
-Returns the current value.
+### getAll
 
----
+```ts
+user.getAll();
+```
 
 ### set
 
@@ -287,38 +237,36 @@ Returns the current value.
 user.set({ name: "Raj" });
 ```
 
-Merges a partial patch and emits a change event.
-
----
+Emits change only if values actually changed.
 
 ### onChange
 
 ```ts
 user.onChange(patch => {
-  if (patch.name) {
-    console.log("Name changed:", patch.name);
-  }
-});
+  console.log(patch);
+}, scope);
 ```
 
-Listeners receive only the changed fields.
+### reset
 
----
+Resets to initial state.
+
+### has
+
+```ts
+user.has("role", "admin");
+```
 
 ### fetch
 
 ```ts
 await user.fetch("/api/user/42", {
-  abort: true,
-  scope
+  scope,
+  abort: true
 });
 ```
 
-Fetched data is merged into the model.
-
----
-
-### autoRefresh (Sequential Polling)
+### autoRefresh
 
 ```ts
 user.autoRefresh("/api/user/42", {
@@ -328,29 +276,21 @@ user.autoRefresh("/api/user/42", {
 });
 ```
 
-Behavior:
-
-```
-fetch → complete → wait 5s → fetch → complete → wait 5s
-```
-
-No overlapping requests.
-
----
-
 ### destroy
 
 ```ts
 user.destroy();
 ```
 
-Clears internal listeners.
+After destruction, usage throws.
 
 ---
 
-## Collection API
+# Collection
 
-### Creating a Collection
+List container with reset semantics.
+
+## Create
 
 ```ts
 const users = new Collection<User>();
@@ -358,144 +298,234 @@ const users = new Collection<User>();
 
 ---
 
-### fetch
+## Core Methods
 
 ```ts
-await users.fetch("/api/users", {
-  scope,
-  dedupe: true
-});
+collection.getAll()
+collection.length
+collection.at(index)
+collection.add(...)
+collection.remove(predicate)
+collection.removeAt(index)
+collection.reset(items)
+collection.clear()
+collection.sort(compareFn)
 ```
-
-Replaces the entire collection.
 
 ---
 
-### onReset
+## Query Helpers
 
 ```ts
-users.onReset(items => {
-  console.log("New items:", items);
-});
+collection.find(...)
+collection.findIndex(...)
+collection.filter(...)
+collection.map(...)
+collection.forEach(...)
+collection.some(...)
+collection.every(...)
 ```
-
-Called whenever the collection is replaced.
 
 ---
 
-### autoRefresh
+## Events
 
 ```ts
-users.autoRefresh("/api/users", {
+collection.onAdd(fn, scope)
+collection.onRemove(fn, scope)
+collection.onReset(fn, scope)
+collection.onSort(fn, scope)
+collection.onChange(fn, scope)
+```
+
+---
+
+## Fetch
+
+```ts
+await collection.fetch("/api/users", { scope });
+```
+
+---
+
+## autoRefresh
+
+```ts
+collection.autoRefresh("/api/users", {
   scope,
   interval: 60000
 });
 ```
 
-Sequential polling identical to `Model.autoRefresh`.
-
 ---
 
-### destroy
+# DOM Utilities
+
+## el()
 
 ```ts
-users.destroy();
+el(".btn")
+el(element)
+el(nodeList)
+el(arrayOfElements)
+el(".row", container)
 ```
 
-Clears items and listeners.
+Returns `Elements`.
 
 ---
 
-## DOM Utilities
+# Elements API
 
-### el
+Chainable DOM wrapper.
 
-DOM selector and wrapper utility.
-
-```ts
-el(".btn");
-el(element);
-el(nodeList);
-el(".item", container);
-```
-
-Always returns an `Elements` instance.
-
----
-
-### Elements API
-
-#### each
+## Traversal
 
 ```ts
-el(".item").each(el => {
-  console.log(el.textContent);
-});
+.find(selector)
+.filter(selector | fn)
+.parent()
+.closest(selector)
+.children()
+.first()
+.last()
+.get(index)
 ```
 
 ---
 
-#### get
+## Content
 
 ```ts
-const first = el(".item").get();
+.text()
+.text("value")
+
+.html()
+.html("value")
+
+.val()
+.val("value")
 ```
 
 ---
 
-#### find
+## Attributes
 
 ```ts
-el("#list").find(".row");
+.attr(name)
+.attr(name, value)
+
+.removeAttr(name)
+
+.data(key)
+.data(key, value)
 ```
 
 ---
 
-#### on (Scoped Events)
+## Events
+
+Scoped:
 
 ```ts
-el(".btn").on("click", () => {
-  console.log("clicked");
-}, scope);
+.on(event, handler, scope)
 ```
 
-Listener is removed automatically when the scope is disposed.
+One-time:
+
+```ts
+.once(event, handler)
+```
+
+Remove:
+
+```ts
+.off(event, handler)
+```
+
+Dispatch:
+
+```ts
+.trigger(event, detail)
+```
 
 ---
 
-#### text
+## Classes
 
 ```ts
-el(".label").text("Hello");
-const value = el(".label").text();
+.addClass("active")
+.removeClass("active")
+.toggleClass("active")
+.hasClass("active")
 ```
 
 ---
 
-#### addClass / removeClass
+## CSS
 
 ```ts
-el(".box").addClass("active");
-el(".box").removeClass("active");
+.css("color")
+.css("color", "red")
+
+.css({
+  color: "red",
+  display: "none"
+})
 ```
 
 ---
 
-## View API
+## Visibility
 
-### Creating a View
+```ts
+.show()
+.hide()
+.toggle()
+.isVisible()
+```
+
+---
+
+## DOM Manipulation
+
+```ts
+.append(content)
+.prepend(content)
+.remove()
+.empty()
+.clone(deep?)
+```
+
+---
+
+## Focus
+
+```ts
+.focus()
+.blur()
+```
+
+---
+
+# View
+
+Represents a UI ownership boundary.
+
+Owns:
+
+* DOM root
+* Scope
+* Child views
+* Optional model
+
+---
+
+## Create View
 
 ```ts
 class UserView extends View<Model<User>> {
   protected init() {
-    this.$(".name").text(this.model.get("name"));
-
-    this.model.onChange(patch => {
-      if (patch.name) {
-        this.$(".name").text(patch.name);
-      }
-    });
-
     this.$(".btn").on(
       "click",
       () => this.model.set({ name: "Raj" }),
@@ -507,7 +537,7 @@ class UserView extends View<Model<User>> {
 
 ---
 
-### Instantiating a View
+## Instantiate
 
 ```ts
 const view = new UserView(
@@ -518,89 +548,84 @@ const view = new UserView(
 
 ---
 
-### Scoped Selector `$`
+## Scoped Selector
 
 ```ts
-this.$(".btn");
+this.$(".row")
 ```
 
 Equivalent to:
 
 ```ts
-el(".btn", this.root);
+el(".row", this.root)
 ```
 
 ---
 
-### destroy
+## Child Views
+
+```ts
+this.createChild(ViewClass, root, model);
+this.createChildren(ViewClass, ".row", el => model);
+```
+
+Children are disposed automatically.
+
+---
+
+## Lifecycle
 
 ```ts
 view.destroy();
 ```
 
-Disposes:
+Destroy:
 
-* the view’s scope
-* event listeners
-* fetches
-* polling
+* Child views
+* Scope
+* Event listeners
+* Fetches
+* Polling
+* Optional model
 
----
-
-## Common Patterns
-
-### Widget Pattern (jQuery-like)
-
-```ts
-class Dialog {
-  private scope = createScope();
-
-  constructor(private root: Element) {
-    el(".close", root).on("click", () => this.close(), this.scope);
-  }
-
-  open() {
-    this.root.classList.add("open");
-  }
-
-  close() {
-    this.root.classList.remove("open");
-  }
-
-  destroy() {
-    this.scope.dispose();
-  }
-}
-```
+Safe to call multiple times.
 
 ---
 
-### Progressive Enhancement
+## Auto Destroy
 
-* HTML renders fully on the server
+If `autoDestroy: true` (default):
+
+View destroys automatically when removed from DOM.
+
+---
+
+# Progressive Enhancement
+
+* Server renders full HTML
 * BoneMarrow enhances behavior
-* No JS → page still works
+* Without JS → page still works
 
 ---
 
-## Best Practices
+# Best Practices
 
-* Always associate async work with a scope
+* Always tie async work to a scope
 * Use `abort: true` for UI-driven fetches
 * Dispose views explicitly
-* Use de-duplication only for idempotent requests
-* Keep models focused and small
+* Keep models small and focused
 * Avoid global state
+* Prefer sequential polling over intervals
 
 ---
 
-## FAQ
+# FAQ
 
 **Is BoneMarrow a framework?**
 No. It provides primitives, not structure.
 
 **Can it replace jQuery?**
-Yes, incrementally and safely.
+Yes, incrementally.
 
 **Does it replace React or Vue?**
-No. It solves a different class of problems.
+No. It solves lifecycle and ownership in server-rendered apps.
