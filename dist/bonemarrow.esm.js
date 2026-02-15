@@ -32,7 +32,8 @@ function createScopeInternal(parent) {
       return child;
     },
     dispose() {
-      if (disposed) return;
+      if (disposed)
+        return;
       disposed = true;
       for (const child of children) {
         child.dispose();
@@ -61,10 +62,12 @@ function createScopeInternal(parent) {
 }
 var windowScope = null;
 function getWindowScope() {
-  if (windowScope) return windowScope;
+  if (windowScope)
+    return windowScope;
   windowScope = createScopeInternal(null);
   const disposeAll = () => {
-    if (!windowScope) return;
+    if (!windowScope)
+      return;
     windowScope.dispose();
     windowScope = null;
   };
@@ -179,7 +182,8 @@ var Emitter = class {
     set.add(fn);
     let disposed = false;
     const cleanup = () => {
-      if (disposed) return;
+      if (disposed)
+        return;
       disposed = true;
       set.delete(fn);
       if (set.size === 0) {
@@ -199,7 +203,8 @@ var Emitter = class {
   }
   emit(event, ...args) {
     const handlers = this.events.get(event);
-    if (!handlers || handlers.size === 0) return;
+    if (!handlers || handlers.size === 0)
+      return;
     const handlersArray = Array.from(handlers);
     for (const fn of handlersArray) {
       try {
@@ -253,7 +258,8 @@ function startSequentialRefresh(fn, opts) {
     return interval * multiplier;
   };
   const stop = () => {
-    if (stopped) return;
+    if (stopped)
+      return;
     stopped = true;
     if (timeoutId !== void 0) {
       clearTimeout(timeoutId);
@@ -261,7 +267,8 @@ function startSequentialRefresh(fn, opts) {
     }
   };
   const loop = async () => {
-    if (stopped) return;
+    if (stopped)
+      return;
     if (isRunning) {
       console.warn(
         "[SequentialRefresh] Previous execution still running"
@@ -382,7 +389,8 @@ var Model = class {
     );
   }
   destroy() {
-    if (this.destroyed) return;
+    if (this.destroyed)
+      return;
     this.destroyed = true;
     this.emitter.clear();
   }
@@ -534,7 +542,8 @@ var Collection = class {
     );
   }
   destroy() {
-    if (this.destroyed) return;
+    if (this.destroyed)
+      return;
     this.destroyed = true;
     this.items = [];
     this.emitter.clear();
@@ -968,7 +977,8 @@ var View = class {
     return this.model;
   }
   destroy() {
-    if (this.destroyed) return;
+    if (this.destroyed)
+      return;
     this.destroyed = true;
     for (const child of this.children) {
       try {

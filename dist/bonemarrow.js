@@ -19,8 +19,8 @@ var bone = (() => {
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
   // src/index.ts
-  var index_exports = {};
-  __export(index_exports, {
+  var src_exports = {};
+  __export(src_exports, {
     Collection: () => Collection,
     Elements: () => Elements,
     Model: () => Model,
@@ -64,7 +64,8 @@ var bone = (() => {
         return child;
       },
       dispose() {
-        if (disposed) return;
+        if (disposed)
+          return;
         disposed = true;
         for (const child of children) {
           child.dispose();
@@ -93,10 +94,12 @@ var bone = (() => {
   }
   var windowScope = null;
   function getWindowScope() {
-    if (windowScope) return windowScope;
+    if (windowScope)
+      return windowScope;
     windowScope = createScopeInternal(null);
     const disposeAll = () => {
-      if (!windowScope) return;
+      if (!windowScope)
+        return;
       windowScope.dispose();
       windowScope = null;
     };
@@ -211,7 +214,8 @@ var bone = (() => {
       set.add(fn);
       let disposed = false;
       const cleanup = () => {
-        if (disposed) return;
+        if (disposed)
+          return;
         disposed = true;
         set.delete(fn);
         if (set.size === 0) {
@@ -231,7 +235,8 @@ var bone = (() => {
     }
     emit(event, ...args) {
       const handlers = this.events.get(event);
-      if (!handlers || handlers.size === 0) return;
+      if (!handlers || handlers.size === 0)
+        return;
       const handlersArray = Array.from(handlers);
       for (const fn of handlersArray) {
         try {
@@ -285,7 +290,8 @@ var bone = (() => {
       return interval * multiplier;
     };
     const stop = () => {
-      if (stopped) return;
+      if (stopped)
+        return;
       stopped = true;
       if (timeoutId !== void 0) {
         clearTimeout(timeoutId);
@@ -293,7 +299,8 @@ var bone = (() => {
       }
     };
     const loop = async () => {
-      if (stopped) return;
+      if (stopped)
+        return;
       if (isRunning) {
         console.warn(
           "[SequentialRefresh] Previous execution still running"
@@ -414,7 +421,8 @@ var bone = (() => {
       );
     }
     destroy() {
-      if (this.destroyed) return;
+      if (this.destroyed)
+        return;
       this.destroyed = true;
       this.emitter.clear();
     }
@@ -566,7 +574,8 @@ var bone = (() => {
       );
     }
     destroy() {
-      if (this.destroyed) return;
+      if (this.destroyed)
+        return;
       this.destroyed = true;
       this.items = [];
       this.emitter.clear();
@@ -1000,7 +1009,8 @@ var bone = (() => {
       return this.model;
     }
     destroy() {
-      if (this.destroyed) return;
+      if (this.destroyed)
+        return;
       this.destroyed = true;
       for (const child of this.children) {
         try {
@@ -1064,5 +1074,5 @@ var bone = (() => {
       }
     }
   };
-  return __toCommonJS(index_exports);
+  return __toCommonJS(src_exports);
 })();
