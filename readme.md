@@ -95,21 +95,21 @@ A unified fetch helper with optional:
 const user = new bone.Model({ name: "John" });
 
 class UserView extends bone.View<typeof user> {
-  protected init() {
-    this.$(".name").text(this.model.get("name"));
+    protected init() {
+        this.$(".name").text(this.model.get("name"));
 
-    this.model.onChange(patch => {
-      if (patch.name) {
-        this.$(".name").text(patch.name);
-      }
-    });
+        this.model.onChange(patch => {
+            if (patch.name) {
+                this.$(".name").text(patch.name);
+            }
+        });
 
-    this.$(".btn").on(
-      "click",
-      () => this.model.set({ name: "Smith" }),
-      this.scope
-    );
-  }
+        this.$(".btn").on(
+            "click",
+            () => this.model.set({ name: "Smith" }),
+            this.scope
+        );
+    }
 }
 
 new UserView(document.getElementById("app")!, user);
@@ -127,9 +127,9 @@ Everything created inside the view:
 
 ```ts
 user.autoRefresh("/api/user/42", {
-  scope: this.scope,
-  interval: 5000,
-  fetch: { abort: true }
+    scope: this.scope,
+    interval: 5000,
+    fetch: { abort: true }
 });
 ```
 
@@ -192,9 +192,9 @@ Perfect for:
 BoneMarrow is intentionally small and dependency-free.
 
 | File                     | Size        |
-| ------------------------ | ----------- |
-| `dist/bonemarrow.js`     | **27.6 kB** |
-| `dist/bonemarrow.min.js` | **13.3 kB** |
+| ------------------------ |-------------|
+| `dist/bonemarrow.js`     | **54.7 kB** |
+| `dist/bonemarrow.min.js` | **19.3 kB** |
 
 Sizes shown are **raw file sizes**, not gzipped.
 BoneMarrow favors clarity and debuggability over compression tricks.
@@ -214,15 +214,20 @@ BoneMarrow provides **primitives**, not rules.
 
 ## License
 
-MIT © Karthick Raj
+BoneMarrow is licensed under the **Apache License, Version 2.0** starting from version **1.2.0**.
+
+Versions **1.1.3 and earlier** remain available under the **MIT License**.
+
+You may use versions ≤ 1.1.3 under MIT terms.
+All versions ≥ 1.2.0 are governed by Apache License 2.0.
+
+See the `LICENSE` file for full details.
 
 ---
 
 ## Final Thought
 
-> **BoneMarrow is intentionally boring.
+> **BoneMarrow is intentionally boring.  
 > Boring code scales.**
 
 If you want clarity, explicit lifecycles, and predictable async behavior without the weight of a framework, BoneMarrow is built for that.
-
-

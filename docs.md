@@ -1,631 +1,367 @@
-# BoneMarrow
+# BoneMarrow Documentation
 
-BoneMarrow is a lightweight, lifecycle-aware JavaScript/TypeScript library for structuring UI logic on top of server-rendered HTML — without jQuery, virtual DOMs, or heavyweight frameworks.
+BoneMarrow is a lifecycle-first UI primitive library.
 
-It provides small, explicit primitives for managing:
+Everything flows through **Scope**.
 
-* Lifetime
-* Async behavior
-* State
-* DOM interaction
-* UI ownership
-
-No hidden rendering.
-No global state.
-No magic.
+If you understand Scope, you understand BoneMarrow.
 
 ---
 
-# Philosophy
+# Architecture Overview
 
-BoneMarrow is built on strict principles:
+BoneMarrow consists of:
 
-* Explicit ownership over implicit behavior
-* Lifecycle-aware code by default
-* No hidden async work
-* No global mutable state
-* Predictable teardown
-* Debuggable abstractions
+- Scope (lifecycle + cancellation root)
+- TypedEmitter (event primitive)
+- fetchJson (scope-aware network layer)
+- createRefresh (sequential polling primitive)
+- Model (reactive object state)
+- Collection (reactive array state)
+- Elements / el (DOM wrapper)
+- View (UI composition primitive)
 
-If something happens, you should be able to answer:
-
-**Who owns it? How long does it live? How does it stop?**
-
----
-
-# Installation
-
-### npm
-
-```bash
-npm install bonemarrow
-```
-
-### CDN
-
-```html
-<script src="https://unpkg.com/bonemarrow"></script>
-```
-
-Global namespace:
-
-```js
-bone.createScope()
-bone.Model
-bone.Collection
-bone.View
-```
+There is no global state.
+There is no hidden scheduler.
+There is no implicit magic.
 
 ---
 
-# Core Exports
+# 1. Scope
+
+Scope is the root lifecycle primitive.
+
+Responsibilities:
+
+- Abort async work via AbortSignal
+- Own cleanup callbacks (LIFO)
+- Form a tree (parent → child)
+- Dispose depth-first
+
+## Creating scopes
 
 ```ts
-import {
-  createScope,
-  fetchJson,
-  Model,
-  Collection,
-  View,
-  el,
-  Elements
-} from "bonemarrow";
+import { createScope, createRootScope } from "bonemarrow";
 ```
 
----
-
-# Scope
-
-A `Scope` represents ownership and lifetime.
-
-Anything attached to a scope is cleaned up when disposed.
-
-## Creating a Scope
+### Browser (attached to window lifecycle)
 
 ```ts
 const scope = createScope();
 ```
 
-Scopes are lightweight.
+Automatically disposed on pagehide / beforeunload.
 
----
-
-## Scope Interface
+### Standalone (tests, Node, workers)
 
 ```ts
-interface Scope {
-  signal: AbortSignal;
-  onDispose(fn: () => void): void;
-  createChild(): Scope;
-  dispose(): void;
-}
+const scope = createRootScope();
 ```
 
----
-
-## Behavior
-
-Disposing a scope:
-
-* Aborts fetches tied to it
-* Runs cleanup callbacks
-* Disposes child scopes
-* Clears in-flight dedupe maps
-
-Calling `dispose()` multiple times is safe.
-
----
-
-# Fetch API
-
-Lifecycle-aware fetch helper.
+You must manually call:
 
 ```ts
-fetchJson<T>(url: string, options?: FetchOptions<T>): Promise<T>
+scope.dispose();
 ```
 
-## Options
+## Disposal order
 
-```ts
-interface FetchOptions<T> {
-  scope?: Scope
-  abort?: boolean
-  timeout?: number
-  retryOnFailure?: number
-  retryDelay?: number
-  dedupe?: boolean
-  init?: RequestInit
-  parse?: (json: unknown) => T
-}
-```
+1. Children disposed
+2. AbortSignal aborted
+3. Cleanups run (LIFO)
 
 ---
+
+# 2. TypedEmitter
+
+Type-safe event emitter.
+
+```ts
+type Events = {
+  change: [data: string];
+};
+
+const emitter = new TypedEmitter<Events>();
+```
+
+## Methods
+
+- on(event, handler, scope?)
+- once(event, handler, scope?)
+- onceAsync(event, scope?)
+- emit(event, ...args)
+- emitAsync(event, ...args)
+- off(event)
+- clear()
+
+### emit vs emitAsync
+
+emit → isolates errors  
+emitAsync → awaits all handlers and throws AggregateError
+
+Use emitAsync for lifecycle hooks.
+
+---
+
+# 3. fetchJson
+
+Scope-aware fetch wrapper.
+
+```ts
+fetchJson<T>(url, options)
+```
 
 ## Features
 
-### Scoped Abort
+- Scope cancellation
+- Timeout (per attempt)
+- Retry with delay
+- Dedup per scope
+- Custom JSON transform
+
+Example:
 
 ```ts
-fetchJson("/api/data", {
+const data = await fetchJson<User[]>("/api/users", {
   scope,
-  abort: true
-});
-```
-
-### Timeout
-
-```ts
-fetchJson("/api/data", { timeout: 3000 });
-```
-
-### Retry
-
-```ts
-fetchJson("/api/data", {
+  timeout: 5000,
   retryOnFailure: 2,
-  retryDelay: 200
-});
-```
-
-### Scope-Local Deduplication
-
-```ts
-fetchJson("/api/data", {
-  scope,
+  retryDelay: 500,
   dedupe: true
 });
 ```
 
-Only one in-flight request per scope.
-
-No caching.
+Aborts automatically if scope is disposed.
 
 ---
 
-# Sequential Refresh
+# 4. createRefresh
 
-Used internally by `Model.autoRefresh` and `Collection.autoRefresh`.
+Sequential, non-overlapping polling loop.
 
-Behavior:
-
+```ts
+const refresh = createRefresh(
+  async (signal) => {
+    const res = await fetch("/api/data", { signal });
+    update(await res.json());
+  },
+  {
+    interval: 5000,
+    scope
+  }
+);
 ```
-fetch → complete → wait → fetch → complete
-```
 
-Never overlaps.
+## Guarantees
 
-Supports:
-
-* Immediate start
-* Retry limits
-* Exponential backoff
+- No overlapping executions
+- Fresh AbortController per tick
+- Optional exponential backoff
+- Optional maxRetries
+- pause / resume / stop
 
 ---
 
-# Model
+# 5. Model
 
-Observable state container.
-
-## Create
+Reactive object container.
 
 ```ts
-const user = new Model({
-  id: 0,
-  name: ""
-});
+const model = new Model({ name: "John" }, scope);
 ```
+
+## Methods
+
+### Read
+
+- get(key)
+- getAll()
+- isDirty()
+- has(key, value)
+
+### Write
+
+- set(patch)
+- reset()
+
+Only changed keys emit.
+
+### Observe
+
+- onChange(fn, scope?)
+- watch(key, fn, scope?)
+
+### Network
+
+- fetch(url)
+- autoRefresh(url, options)
+
+Model owns a scope.
+Destroying scope destroys model.
 
 ---
 
-## API
+# 6. Collection
 
-### get
-
-```ts
-user.get("name");
-```
-
-### getAll
+Reactive array container.
 
 ```ts
-user.getAll();
+const users = new Collection<User>([], scope);
 ```
 
-### set
+## Read
 
-```ts
-user.set({ name: "Raj" });
-```
+- getAll()
+- at(index)
+- find()
+- filter()
+- map()
+- length
 
-Emits change only if values actually changed.
+## Write
 
-### onChange
+- add()
+- remove(predicate)
+- removeAt()
+- update(predicate, patch)
+- move()
+- sort()
+- reset()
+- clear()
 
-```ts
-user.onChange(patch => {
-  console.log(patch);
-}, scope);
-```
+## Observe
 
-### reset
+- onAdd
+- onRemove
+- onUpdate
+- onReset
+- onSort
 
-Resets to initial state.
+## Network
 
-### has
-
-```ts
-user.has("role", "admin");
-```
-
-### fetch
-
-```ts
-await user.fetch("/api/user/42", {
-  scope,
-  abort: true
-});
-```
-
-### autoRefresh
-
-```ts
-user.autoRefresh("/api/user/42", {
-  scope,
-  interval: 5000,
-  fetch: { abort: true }
-});
-```
-
-### destroy
-
-```ts
-user.destroy();
-```
-
-After destruction, usage throws.
+- fetch(url)
+- autoRefresh(url, options)
 
 ---
 
-# Collection
-
-List container with reset semantics.
-
-## Create
-
-```ts
-const users = new Collection<User>();
-```
-
----
-
-## Core Methods
-
-```ts
-collection.getAll()
-collection.length
-collection.at(index)
-collection.add(...)
-collection.remove(predicate)
-collection.removeAt(index)
-collection.reset(items)
-collection.clear()
-collection.sort(compareFn)
-```
-
----
-
-## Query Helpers
-
-```ts
-collection.find(...)
-collection.findIndex(...)
-collection.filter(...)
-collection.map(...)
-collection.forEach(...)
-collection.some(...)
-collection.every(...)
-```
-
----
-
-## Events
-
-```ts
-collection.onAdd(fn, scope)
-collection.onRemove(fn, scope)
-collection.onReset(fn, scope)
-collection.onSort(fn, scope)
-collection.onChange(fn, scope)
-```
-
----
-
-## Fetch
-
-```ts
-await collection.fetch("/api/users", { scope });
-```
-
----
-
-## autoRefresh
-
-```ts
-collection.autoRefresh("/api/users", {
-  scope,
-  interval: 60000
-});
-```
-
----
-
-# DOM Utilities
+# 7. DOM Utilities
 
 ## el()
 
+Selector + wrapper.
+
 ```ts
-el(".btn")
+el(".card")
 el(element)
 el(nodeList)
-el(arrayOfElements)
-el(".row", container)
 ```
 
-Returns `Elements`.
+## Elements
+
+Fluent DOM wrapper.
+
+Features:
+
+- find / filter / not / closest
+- text / html
+- attr / data / val
+- on / once / off / trigger
+- addClass / removeClass / toggleClass
+- css / show / hide / toggle
+- append / prepend / remove
+
+All methods safe on empty collections.
+
+Scope-aware event cleanup supported.
 
 ---
 
-# Elements API
+# 8. View
 
-Chainable DOM wrapper.
-
-## Traversal
+UI composition primitive.
 
 ```ts
-.find(selector)
-.filter(selector | fn)
-.parent()
-.closest(selector)
-.children()
-.first()
-.last()
-.get(index)
-```
-
----
-
-## Content
-
-```ts
-.text()
-.text("value")
-
-.html()
-.html("value")
-
-.val()
-.val("value")
-```
-
----
-
-## Attributes
-
-```ts
-.attr(name)
-.attr(name, value)
-
-.removeAttr(name)
-
-.data(key)
-.data(key, value)
-```
-
----
-
-## Events
-
-Scoped:
-
-```ts
-.on(event, handler, scope)
-```
-
-One-time:
-
-```ts
-.once(event, handler)
-```
-
-Remove:
-
-```ts
-.off(event, handler)
-```
-
-Dispatch:
-
-```ts
-.trigger(event, detail)
-```
-
----
-
-## Classes
-
-```ts
-.addClass("active")
-.removeClass("active")
-.toggleClass("active")
-.hasClass("active")
-```
-
----
-
-## CSS
-
-```ts
-.css("color")
-.css("color", "red")
-
-.css({
-  color: "red",
-  display: "none"
-})
-```
-
----
-
-## Visibility
-
-```ts
-.show()
-.hide()
-.toggle()
-.isVisible()
-```
-
----
-
-## DOM Manipulation
-
-```ts
-.append(content)
-.prepend(content)
-.remove()
-.empty()
-.clone(deep?)
-```
-
----
-
-## Focus
-
-```ts
-.focus()
-.blur()
-```
-
----
-
-# View
-
-Represents a UI ownership boundary.
-
-Owns:
-
-* DOM root
-* Scope
-* Child views
-* Optional model
-
----
-
-## Create View
-
-```ts
-class UserView extends View<Model<User>> {
+class UserView extends View<User> {
   protected init() {
-    this.$(".btn").on(
-      "click",
-      () => this.model.set({ name: "Raj" }),
-      this.scope
-    );
+    this.$(".name").text(this.model?.get("name") ?? "");
+
+    this.model?.onChange(() => this.render(), this.scope);
+  }
+
+  protected render() {
+    this.$(".name").text(this.model?.get("name") ?? "");
   }
 }
 ```
 
----
+## Lifecycle
 
-## Instantiate
-
-```ts
-const view = new UserView(
-  document.getElementById("app")!,
-  user
-);
-```
-
----
-
-## Scoped Selector
-
-```ts
-this.$(".row")
-```
-
-Equivalent to:
-
-```ts
-el(".row", this.root)
-```
-
----
+1. constructor
+2. init()
+3. render() (manual)
+4. destroy()
 
 ## Child Views
 
 ```ts
-this.createChild(ViewClass, root, model);
-this.createChildren(ViewClass, ".row", el => model);
+this.createChild(ChildView, element, model);
 ```
 
-Children are disposed automatically.
+Child views are scope-owned automatically.
 
----
+## Auto-destroy
 
-## Lifecycle
+Uses MutationObserver to destroy when root is removed.
+
+Disable:
 
 ```ts
-view.destroy();
+new View(root, model, { autoDestroy: false });
 ```
 
-Destroy:
+---
 
-* Child views
-* Scope
-* Event listeners
-* Fetches
-* Polling
-* Optional model
+# Design Guarantees
 
-Safe to call multiple times.
+- No overlapping async refresh
+- No fetch leaks
+- Deterministic disposal
+- LIFO cleanup
+- No hidden timers
+- No background schedulers
+- No implicit global state
 
 ---
 
-## Auto Destroy
+# Recommended Patterns
 
-If `autoDestroy: true` (default):
-
-View destroys automatically when removed from DOM.
-
----
-
-# Progressive Enhancement
-
-* Server renders full HTML
-* BoneMarrow enhances behavior
-* Without JS → page still works
+✔ One child scope per Model  
+✔ One View per DOM root  
+✔ Pass scope explicitly to async work  
+✔ Use autoRefresh for polling  
+✔ Use watch() for granular updates
 
 ---
 
-# Best Practices
+# Anti-Patterns
 
-* Always tie async work to a scope
-* Use `abort: true` for UI-driven fetches
-* Dispose views explicitly
-* Keep models small and focused
-* Avoid global state
-* Prefer sequential polling over intervals
+✘ Sharing one scope across unrelated models  
+✘ Forgetting to dispose root scopes in tests  
+✘ Using html() with unsanitized user input  
+✘ Relying on implicit re-renders
 
 ---
 
-# FAQ
+# Philosophy
 
-**Is BoneMarrow a framework?**
-No. It provides primitives, not structure.
+BoneMarrow favors:
 
-**Can it replace jQuery?**
-Yes, incrementally.
+- Explicit ownership
+- Deterministic cleanup
+- Predictable async
+- Small composable primitives
 
-**Does it replace React or Vue?**
-No. It solves lifecycle and ownership in server-rendered apps.
+It is not reactive magic.
+It is not a framework.
+
+It is a disciplined layer over the DOM.
