@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Features — BoneMarrow.js</title>
+    <script>
+        (function () {
+            var t = localStorage.getItem("bm-theme") ||
+                (window.matchMedia("(prefers-color-scheme:light)").matches ? "light" : "dark");
+            document.documentElement.setAttribute("data-theme", t);
+        })();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bonemarrow"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="bonemarrow.css" />
+</head>
+
+<body>
+
+    <nav>
+        <a class="nav-logo" href="index.html">
+            <div class="logo-icon">🦴</div>
+            bonemarrow
+        </a>
+        <div class="nav-right">
+            <a class="nav-link" href="index.html">Home</a>
+            <a class="nav-link" href="features.html" style="color:var(--accent)">Features</a>
+            <a class="nav-link" href="docs.html">Docs</a>
+            <button id="theme-toggle"><span id="theme-icon"></span><span id="theme-label"></span></button>
+            <a class="btn-coffee" href="https://paypal.me/KarthickRajS" target="_blank">☕ Buy me a coffee</a>
+        </div>
+    </nav>
+
+    <section>
+        <div class="page-hero">
+            <div class="breadcrumb fade-up">
+                <a href="bonemarrow-landing.html">bonemarrow</a>
+                <span class="breadcrumb-sep">/</span>
+                <span>features</span>
+            </div>
+            <h1 id="hero-title">Eight primitives.<br /><span class="hero-gradient">One coherent core.</span></h1>
+            <p class="hero-sub" id="hero-sub">Everything BoneMarrow provides is scope-aware, leak-free, and designed to
+                compose.</p>
+        </div>
+    </section>
+
+    <nav class="prim-nav">
+        <div class="prim-nav-inner">
+            <a class="prim-tab active" href="#model"><span class="prim-tab-icon">📦</span> Model</a>
+            <a class="prim-tab" href="#collection"><span class="prim-tab-icon">🗂</span> Collection</a>
+            <a class="prim-tab" href="#emitter"><span class="prim-tab-icon">📡</span> Emitter</a>
+            <a class="prim-tab" href="#el"><span class="prim-tab-icon">🎯</span> el()</a>
+            <a class="prim-tab" href="#view"><span class="prim-tab-icon">🧱</span> View</a>
+            <a class="prim-tab" href="#scope"><span class="prim-tab-icon">🔭</span> Scope</a>
+            <a class="prim-tab" href="#refresh"><span class="prim-tab-icon">⏱</span> createRefresh</a>
+            <a class="prim-tab" href="#fetch"><span class="prim-tab-icon">🌐</span> fetchJson</a>
+        </div>
+    </nav>
+
+    <section class="prim-section" id="model">
+        <div class="section-inner">
+            <div class="prim-header fade-up">
+                <div class="prim-icon-lg" style="background:rgba(167,139,250,.15)">📦</div>
+                <div class="prim-header-text">
+                    <div class="prim-name">Model</div>
+                    <div class="prim-tagline">Key-value state container with change tracking, per-key watchers, and
+                        endpoint auto-refresh.</div>
+                </div>
+            </div>
+            <div class="prop-badges fade-up"><span class="prop-badge yes">✓ ✓ Scope-aware</span><span
+                    class="prop-badge yes">✓ ✓ Dirty tracking</span><span class="prop-badge yes">✓ ✓ Per-key
+                    watch</span><span class="prop-badge yes">✓ ✓ Auto-refresh</span><span class="prop-badge">TypeScript
+                    generic</span></div>
+            <div class="prim-body">
+                <div class="method-table fade-up">
+                    <div class="method-row">
+                        <span class="method-sig">new Model(data, scope?)</span>
+                        <div class="method-body">
+                            <div class="method-name">Constructor</div>
+                            <div class="method-desc">Creates a model with initial data. Pass a scope for lifetime
+                                binding.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">set(partial)</span>
+                        <div class="method-body">
+                            <div class="method-name">Set values</div>
+                            <div class="method-desc">Merges partial data into state. Only emits <code>change</code> for
+                                keys whose values actually changed. Returns <code>true</code> if any change occurred.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">get(key)</span>
+                        <div class="method-body">
+                            <div class="method-name">Read a value</div>
+                            <div class="method-desc">Returns the current value for a single key. Type-safe with
+                                TypeScript generics.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">getAll()</span>
+                        <div class="method-body">
+                            <div class="method-name">Read all values</div>
+                            <div class="method-desc">Returns a shallow copy of the full state object.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">watch(key, fn, scope?)</span>
+                        <div class="method-body">
+                            <div class="method-name">Per-key watcher</div>
+                            <div class="method-desc">Calls <code>fn(newValue)</code> whenever the key changes.
+                                Auto-removed on scope disposal.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">onChange(fn, scope?)</span>
+                        <div class="method-body">
+                            <div class="method-name">Global change listener</div>
+                            <div class="method-desc">Fires with the partial change object <code>{ key: newValue }</code>
+                                for every <code>set()</code> that produces a change.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">isDirty()</span>
+                        <div class="method-body">
+                            <div class="method-name">Dirty check</div>
+                            <div class="method-desc">Returns <code>true</code> if any current value differs from its
+                                initial value.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">reset()</span>
+                        <div class="method-body">
+                            <div class="method-name">Reset to initial</div>
+                            <div class="method-desc">Reverts all values to the initial state. Emits <code>change</code>
+                                if anything changed.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">fetch(url, timeout?)</span>
+                        <div class="method-body">
+                            <div class="method-name">Load from endpoint</div>
+                            <div class="method-desc">Fetches a JSON endpoint and calls <code>set()</code> with the
+                                result.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">autoRefresh(url, opts)</span>
+                        <div class="method-body">
+                            <div class="method-name">Polling refresh</div>
+                            <div class="method-desc">Polls a JSON endpoint on an interval. Supports backoff, retries,
+                                and pause/resume.</div>
+                        </div>
+                    </div>
+                    <div class="highlight-box fade-up"><strong>Note:</strong> Model emits change events only for keys
+                        that actually changed (strict equality). Calling <code>set()</code> with the same data is a safe
+                        no-op.</div>
+                </div>
+                <div class="fade-up">
+                    <div class="code-panel code-block" data-js-label="model.js" data-ts-label="model.ts">
+                        <div class="code-block-bar">
+                            <div class="code-block-dots">
+                                <div class="dot dot-r"></div>
+                                <div class="dot dot-y"></div>
+                                <div class="dot dot-g"></div>
+                            </div>
+                            <span class="code-block-label">model.js</span>
+                            <div class="lang-switcher">
+                                <button class="lang-btn" data-lang="js">JS</button>
+                                <button class="lang-btn" data-lang="ts">TS</button>
+                            </div>
+                        </div>
+                        <div class="code-pane" data-lang="js">
+                            <pre><span class="kw">const</span> scope = bone.<span class="fn">createScope</span>();
+
+<span class="cm">// Create with initial state</span>
+<span class="kw">const</span> user = <span class="kw">new</span> bone.<span class="fn">Model</span>({
+  name:   <span class="str">"Ada"</span>,
+  score:  <span class="nm">0</span>,
+  active: <span class="kw">true</span>,
+}, scope);
+
+<span class="cm">// Watch a specific key</span>
+user.<span class="fn">watch</span>(<span class="str">"score"</span>, score => {
+  bone.<span class="fn">el</span>(<span class="str">"#score"</span>).<span class="fn">text</span>(<span class="str">`Score: ${score}`</span>);
+}, scope);
+
+<span class="cm">// Listen to all changes</span>
+user.<span class="fn">onChange</span>(changed => {
+  console.<span class="fn">log</span>(<span class="str">"changed:"</span>, changed);
+}, scope);
+
+<span class="cm">// Update — only changed keys emit</span>
+user.<span class="fn">set</span>({ score: <span class="nm">42</span> }); <span class="cm">// → fires "score" watcher</span>
+user.<span class="fn">set</span>({ score: <span class="nm">42</span> }); <span class="cm">// → no-op, same value</span>
+
+<span class="cm">// Dirty tracking</span>
+user.<span class="fn">isDirty</span>(); <span class="cm">// → true (score changed)</span>
+user.<span class="fn">reset</span>();   <span class="cm">// → score back to 0</span>
+
+<span class="cm">// Auto-poll an API</span>
+user.<span class="fn">autoRefresh</span>(<span class="str">"/api/user"</span>, {
+  interval:   <span class="nm">10000</span>,
+  scope,
+  backoff:    <span class="kw">true</span>,
+  maxRetries: <span class="nm">3</span>,
+});</pre>
+                        </div>
+                        <div class="code-pane" data-lang="ts">
+                            <pre><span class="kw">import</span> { createScope, Model, el } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">interface</span> <span class="ty">UserState</span> {
+  name<span class="ty">:</span>   <span class="ty">string</span>;
+  score<span class="ty">:</span>  <span class="ty">number</span>;
+  active<span class="ty">:</span> <span class="ty">boolean</span>;
+}
+
+<span class="kw">const</span> scope = <span class="fn">createScope</span>();
+<span class="kw">const</span> user = <span class="kw">new</span> <span class="fn">Model</span><span class="gi">&lt;</span><span class="ty">UserState</span><span class="gi">&gt;</span>({
+  name: <span class="str">"Ada"</span>, score: <span class="nm">0</span>, active: <span class="kw">true</span>,
+}, scope);
+
+<span class="cm">// score is inferred as number</span>
+user.<span class="fn">watch</span>(<span class="str">"score"</span>, (score) => {
+  <span class="fn">el</span>(<span class="str">"#score"</span>).<span class="fn">text</span>(<span class="str">`Score: ${score}`</span>);
+}, scope);
+
+user.<span class="fn">onChange</span>((changed<span class="ty">: Partial&lt;UserState&gt;</span>) => {
+  console.<span class="fn">log</span>(<span class="str">"changed:"</span>, changed);
+}, scope);
+
+user.<span class="fn">set</span>({ score: <span class="nm">42</span> });
+user.<span class="fn">isDirty</span>(); <span class="cm">// → true</span>
+user.<span class="fn">reset</span>();
+
+user.<span class="fn">autoRefresh</span>(<span class="str">"/api/user"</span>, {
+  interval: <span class="nm">10000</span>, scope, backoff: <span class="kw">true</span>, maxRetries: <span class="nm">3</span>,
+});</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="prim-section" id="collection">
+        <div class="section-inner">
+            <div class="prim-header fade-up">
+                <div class="prim-icon-lg" style="background:rgba(56,189,248,.15)">🗂</div>
+                <div class="prim-header-text">
+                    <div class="prim-name">Collection</div>
+                    <div class="prim-tagline">Reactive array with granular add / remove / update / sort events and full
+                        array-method API.</div>
+                </div>
+            </div>
+            <div class="prop-badges fade-up"><span class="prop-badge yes">✓ ✓ Scope-aware</span><span
+                    class="prop-badge yes">✓ ✓ Granular events</span><span class="prop-badge yes">✓ ✓
+                    Auto-refresh</span><span class="prop-badge">Works with any type</span></div>
+            <div class="prim-body">
+                <div class="method-table fade-up">
+                    <div class="method-row">
+                        <span class="method-sig">add(...items)</span>
+                        <div class="method-body">
+                            <div class="method-name">Add items</div>
+                            <div class="method-desc">Pushes one or more items to the end of the collection. Emits
+                                <code>add</code> with the array of added items.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">remove(predicate)</span>
+                        <div class="method-body">
+                            <div class="method-name">Remove by predicate</div>
+                            <div class="method-desc">Removes all items matching the predicate. Emits <code>remove</code>
+                                with removed items.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">removeAt(index)</span>
+                        <div class="method-body">
+                            <div class="method-name">Remove by index</div>
+                            <div class="method-desc">Removes the item at the given index. Returns the removed item.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">update(predicate, patch)</span>
+                        <div class="method-body">
+                            <div class="method-name">Patch matching items</div>
+                            <div class="method-desc">Shallow-merges <code>patch</code> onto matching items. Only emits
+                                <code>update</code> if values changed.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">sort(compareFn)</span>
+                        <div class="method-body">
+                            <div class="method-name">Sort in-place</div>
+                            <div class="method-desc">Sorts the internal array. Emits <code>sort</code>.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">move(fromIndex, toIndex)</span>
+                        <div class="method-body">
+                            <div class="method-name">Reorder item</div>
+                            <div class="method-desc">Moves an item from one index to another. Emits <code>sort</code>.
+                                Useful for drag-and-drop.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">reset(items)</span>
+                        <div class="method-body">
+                            <div class="method-name">Replace all</div>
+                            <div class="method-desc">Replaces the entire collection with a new array. Emits
+                                <code>reset</code>.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">clear()</span>
+                        <div class="method-body">
+                            <div class="method-name">Empty collection</div>
+                            <div class="method-desc">Removes all items and emits <code>reset</code> with
+                                <code>[]</code>.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">onAdd / onRemove / onUpdate / onReset / onSort</span>
+                        <div class="method-body">
+                            <div class="method-name">Granular event hooks</div>
+                            <div class="method-desc">Subscribe to individual mutation events. Each returns an
+                                unsubscribe function.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">map / filter / find / some / every / forEach</span>
+                        <div class="method-body">
+                            <div class="method-name">Array methods</div>
+                            <div class="method-desc">Standard array iteration methods operating on a snapshot of the
+                                internal array. Non-mutating.</div>
+                        </div>
+                    </div>
+                    <div class="highlight-box fade-up"><strong>Note:</strong> <code>update()</code> performs shallow
+                        equality checks before emitting — patching an item with identical values is a no-op.</div>
+                </div>
+                <div class="fade-up">
+                    <div class="code-panel code-block" data-js-label="collection.js" data-ts-label="collection.ts">
+                        <div class="code-block-bar">
+                            <div class="code-block-dots">
+                                <div class="dot dot-r"></div>
+                                <div class="dot dot-y"></div>
+                                <div class="dot dot-g"></div>
+                            </div>
+                            <span class="code-block-label">collection.js</span>
+                            <div class="lang-switcher">
+                                <button class="lang-btn" data-lang="js">JS</button>
+                                <button class="lang-btn" data-lang="ts">TS</button>
+                            </div>
+                        </div>
+                        <div class="code-pane" data-lang="js">
+                            <pre><span class="kw">const</span> scope = bone.<span class="fn">createScope</span>();
+
+<span class="kw">const</span> tasks = <span class="kw">new</span> bone.<span class="fn">Collection</span>([
+  { id: <span class="nm">1</span>, title: <span class="str">"Design"</span>, done: <span class="kw">false</span> },
+  { id: <span class="nm">2</span>, title: <span class="str">"Build"</span>,  done: <span class="kw">false</span> },
+], scope);
+
+<span class="cm">// Re-render whenever anything changes</span>
+tasks.<span class="fn">onChange</span>(() => renderList(), scope);
+
+<span class="cm">// Add items</span>
+tasks.<span class="fn">add</span>({ id: <span class="nm">3</span>, title: <span class="str">"Ship"</span>, done: <span class="kw">false</span> });
+
+<span class="cm">// Mark a task complete</span>
+tasks.<span class="fn">update</span>(
+  t => t.id === <span class="nm">1</span>,
+  { done: <span class="kw">true</span> }
+);
+
+<span class="cm">// Remove done tasks</span>
+tasks.<span class="fn">remove</span>(t => t.done);
+
+<span class="cm">// Sort alphabetically</span>
+tasks.<span class="fn">sort</span>((a, b) =>
+  a.title.<span class="fn">localeCompare</span>(b.title)
+);
+
+<span class="cm">// Granular event subscriptions</span>
+tasks.<span class="fn">onAdd</span>(items => {
+  console.<span class="fn">log</span>(<span class="str">"added:"</span>, items);
+}, scope);
+
+<span class="cm">// Read without mutating</span>
+<span class="kw">const</span> pending = tasks.<span class="fn">filter</span>(t => !t.done);
+console.<span class="fn">log</span>(tasks.length); <span class="cm">// → 2</span></pre>
+                        </div>
+                        <div class="code-pane" data-lang="ts">
+                            <pre><span class="kw">import</span> { createScope, Collection } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">interface</span> <span class="ty">Task</span> { id<span class="ty">: number</span>; title<span class="ty">: string</span>; done<span class="ty">: boolean</span>; }
+
+<span class="kw">const</span> scope = <span class="fn">createScope</span>();
+<span class="kw">const</span> tasks = <span class="kw">new</span> <span class="fn">Collection</span><span class="gi">&lt;</span><span class="ty">Task</span><span class="gi">&gt;</span>([
+  { id: <span class="nm">1</span>, title: <span class="str">"Design"</span>, done: <span class="kw">false</span> },
+  { id: <span class="nm">2</span>, title: <span class="str">"Build"</span>,  done: <span class="kw">false</span> },
+], scope);
+
+tasks.<span class="fn">onChange</span>(() => renderList(), scope);
+
+tasks.<span class="fn">add</span>({ id: <span class="nm">3</span>, title: <span class="str">"Ship"</span>, done: <span class="kw">false</span> });
+
+tasks.<span class="fn">update</span>(
+  (t<span class="ty">: Task</span>) => t.id === <span class="nm">1</span>,
+  { done: <span class="kw">true</span> }
+);
+
+tasks.<span class="fn">remove</span>((t<span class="ty">: Task</span>) => t.done);
+
+tasks.<span class="fn">sort</span>((a<span class="ty">: Task</span>, b<span class="ty">: Task</span>) =>
+  a.title.<span class="fn">localeCompare</span>(b.title)
+);
+
+tasks.<span class="fn">onAdd</span>((items<span class="ty">: Task[]</span>) => {
+  console.<span class="fn">log</span>(<span class="str">"added:"</span>, items);
+}, scope);
+
+<span class="kw">const</span> pending<span class="ty">: Task[]</span> = tasks.<span class="fn">filter</span>(t => !t.done);
+console.<span class="fn">log</span>(tasks.length);</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="prim-section" id="emitter">
+        <div class="section-inner">
+            <div class="prim-header fade-up">
+                <div class="prim-icon-lg" style="background:rgba(244,114,182,.15)">📡</div>
+                <div class="prim-header-text">
+                    <div class="prim-name">Emitter / TypedEmitter</div>
+                    <div class="prim-tagline">Full-featured event bus with async emission, promise-based once, and
+                        built-in leak detection.</div>
+                </div>
+            </div>
+            <div class="prop-badges fade-up"><span class="prop-badge yes">✓ ✓ Typed events</span><span
+                    class="prop-badge yes">✓ ✓ Async emit</span><span class="prop-badge yes">✓ ✓ Scope
+                    cleanup</span><span class="prop-badge yes">✓ ✓ Leak detection</span></div>
+            <div class="prim-body">
+                <div class="method-table fade-up">
+                    <div class="method-row">
+                        <span class="method-sig">on(event, fn, scope?)</span>
+                        <div class="method-body">
+                            <div class="method-name">Subscribe</div>
+                            <div class="method-desc">Registers a listener. Returns an unsubscribe function. Pass a scope
+                                to auto-remove on disposal.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">once(event, fn, scope?)</span>
+                        <div class="method-body">
+                            <div class="method-name">One-time listener</div>
+                            <div class="method-desc">Like <code>on()</code> but auto-removes after the first emission.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">onceAsync(event, scope?)</span>
+                        <div class="method-body">
+                            <div class="method-name">Promise-based once</div>
+                            <div class="method-desc">Returns a Promise resolving with the event arguments array on the
+                                next emission.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">emit(event, ...args)</span>
+                        <div class="method-body">
+                            <div class="method-name">Synchronous emit</div>
+                            <div class="method-desc">Calls all listeners synchronously. Errors in handlers are caught
+                                and logged without stopping other handlers.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">emitAsync(event, ...args)</span>
+                        <div class="method-body">
+                            <div class="method-name">Async emit</div>
+                            <div class="method-desc">Calls all handlers and awaits via <code>Promise.allSettled</code>.
+                                Throws <code>AggregateError</code> if any handler rejects.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">off(event)</span>
+                        <div class="method-body">
+                            <div class="method-name">Remove all for event</div>
+                            <div class="method-desc">Removes all listeners for the given event name.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">listenerCount(event)</span>
+                        <div class="method-body">
+                            <div class="method-name">Count listeners</div>
+                            <div class="method-desc">Returns the number of active listeners for the event.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">eventNames()</span>
+                        <div class="method-body">
+                            <div class="method-name">List events</div>
+                            <div class="method-desc">Returns an array of all event names with active listeners.</div>
+                        </div>
+                    </div>
+                    <div class="highlight-box fade-up"><strong>Note:</strong> Use
+                        <code>TypedEmitter&lt;Events&gt;</code> for full TypeScript type-safety on event names and
+                        payload types. <code>Emitter</code> is the untyped alias for plain JS.
+                    </div>
+                </div>
+                <div class="fade-up">
+                    <div class="code-panel code-block" data-js-label="emitter.js" data-ts-label="emitter.ts">
+                        <div class="code-block-bar">
+                            <div class="code-block-dots">
+                                <div class="dot dot-r"></div>
+                                <div class="dot dot-y"></div>
+                                <div class="dot dot-g"></div>
+                            </div>
+                            <span class="code-block-label">emitter.js</span>
+                            <div class="lang-switcher">
+                                <button class="lang-btn" data-lang="js">JS</button>
+                                <button class="lang-btn" data-lang="ts">TS</button>
+                            </div>
+                        </div>
+                        <div class="code-pane" data-lang="js">
+                            <pre><span class="kw">const</span> bus = <span class="kw">new</span> bone.<span class="fn">Emitter</span>({
+  debug:        <span class="kw">true</span>,
+  maxListeners: <span class="nm">20</span>,
+});
+
+<span class="cm">// Standard subscribe</span>
+bus.<span class="fn">on</span>(<span class="str">"login"</span>, ({ user }) => {
+  console.<span class="fn">log</span>(<span class="str">"logged in:"</span>, user);
+}, scope);
+
+<span class="cm">// One-time listener</span>
+bus.<span class="fn">once</span>(<span class="str">"ready"</span>, () => init());
+
+<span class="cm">// Await next emission</span>
+<span class="kw">async function</span> <span class="fn">waitForData</span>() {
+  <span class="kw">const</span> [payload] = <span class="kw">await</span> bus.<span class="fn">onceAsync</span>(<span class="str">"data"</span>);
+  console.<span class="fn">log</span>(payload);
+}
+
+<span class="cm">// Synchronous emit</span>
+bus.<span class="fn">emit</span>(<span class="str">"login"</span>, { user: <span class="str">"Ada"</span> });
+
+<span class="cm">// Async emit — waits all handlers</span>
+<span class="kw">await</span> bus.<span class="fn">emitAsync</span>(<span class="str">"save"</span>, { id: <span class="nm">42</span> });
+
+bus.<span class="fn">listenerCount</span>(<span class="str">"login"</span>); <span class="cm">// → 1</span>
+bus.<span class="fn">eventNames</span>();          <span class="cm">// → ["login", "ready"]</span></pre>
+                        </div>
+                        <div class="code-pane" data-lang="ts">
+                            <pre><span class="kw">import</span> { TypedEmitter } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">type</span> <span class="ty">Events</span> = {
+  login<span class="ty">:</span> [{ user<span class="ty">: string</span> }];
+  ready<span class="ty">:</span> [];
+  data<span class="ty">:</span>  [<span class="ty">unknown</span>];
+  save<span class="ty">:</span>  [{ id<span class="ty">: number</span> }];
+};
+
+<span class="kw">const</span> bus = <span class="kw">new</span> <span class="fn">TypedEmitter</span><span class="gi">&lt;</span><span class="ty">Events</span><span class="gi">&gt;</span>({
+  debug: <span class="kw">true</span>, maxListeners: <span class="nm">20</span>,
+});
+
+<span class="cm">// user is string — type-checked ✓</span>
+bus.<span class="fn">on</span>(<span class="str">"login"</span>, ({ user }) => {
+  console.<span class="fn">log</span>(<span class="str">"logged in:"</span>, user);
+}, scope);
+
+bus.<span class="fn">once</span>(<span class="str">"ready"</span>, () => init());
+
+<span class="kw">async function</span> <span class="fn">waitForData</span>() {
+  <span class="kw">const</span> [payload] = <span class="kw">await</span> bus.<span class="fn">onceAsync</span>(<span class="str">"data"</span>);
+  console.<span class="fn">log</span>(payload);
+}
+
+bus.<span class="fn">emit</span>(<span class="str">"login"</span>, { user: <span class="str">"Ada"</span> });
+<span class="kw">await</span> bus.<span class="fn">emitAsync</span>(<span class="str">"save"</span>, { id: <span class="nm">42</span> });
+bus.<span class="fn">listenerCount</span>(<span class="str">"login"</span>);
+bus.<span class="fn">eventNames</span>();</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="prim-section" id="el">
+        <div class="section-inner">
+            <div class="prim-header fade-up">
+                <div class="prim-icon-lg" style="background:rgba(74,222,128,.15)">🎯</div>
+                <div class="prim-header-text">
+                    <div class="prim-name">el() &amp; Elements</div>
+                    <div class="prim-tagline">Chainable DOM wrapper. Select, traverse, mutate, animate, and bind events
+                        — no dependencies.</div>
+                </div>
+            </div>
+            <div class="prop-badges fade-up"><span class="prop-badge yes">✓ ✓ Chainable</span><span
+                    class="prop-badge yes">✓ ✓ Multi-element</span><span class="prop-badge yes">✓ ✓ Scope
+                    events</span><span class="prop-badge">jQuery-inspired</span></div>
+            <div class="prim-body">
+                <div class="method-table fade-up">
+                    <div class="method-row">
+                        <span class="method-sig">el(selector | Element | NodeList)</span>
+                        <div class="method-body">
+                            <div class="method-name">Wrap elements</div>
+                            <div class="method-desc">Accepts a CSS selector, DOM Element, NodeList, or array. Returns a
+                                chainable <code>Elements</code> instance.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">text(str?) / html(str?)</span>
+                        <div class="method-body">
+                            <div class="method-name">Content</div>
+                            <div class="method-desc">Get or set <code>textContent</code> / <code>innerHTML</code>.
+                                Getter from first element; setter applies to all.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">addClass / removeClass / toggleClass / hasClass</span>
+                        <div class="method-body">
+                            <div class="method-name">Class manipulation</div>
+                            <div class="method-desc">Space-separated class names supported.
+                                <code>toggleClass(name, force?)</code> accepts an optional boolean.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">css(prop, val) / css(object)</span>
+                        <div class="method-body">
+                            <div class="method-name">Inline styles</div>
+                            <div class="method-desc">Set a CSS property or multiple via an object map. Getter returns
+                                computed style from first element.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">attr(key, val?) / removeAttr(key)</span>
+                        <div class="method-body">
+                            <div class="method-name">Attributes</div>
+                            <div class="method-desc">Get or set HTML attributes. <code>data(key, val?)</code> works with
+                                <code>dataset</code>.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">on(event, fn, scope?) / off / once / trigger</span>
+                        <div class="method-body">
+                            <div class="method-name">Events</div>
+                            <div class="method-desc">Bind scope-aware listeners. <code>trigger()</code> dispatches a
+                                CustomEvent with optional detail payload.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">find / filter / not / parent / siblings / closest / children</span>
+                        <div class="method-body">
+                            <div class="method-name">DOM traversal</div>
+                            <div class="method-desc">All traversal methods return a new <code>Elements</code> instance.
+                                Chain freely.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">append / prepend / remove / empty / clone</span>
+                        <div class="method-body">
+                            <div class="method-name">DOM mutation</div>
+                            <div class="method-desc">Insert HTML strings or Elements. Nodes auto-cloned when appending
+                                to multiple targets.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">show / hide / toggle / isVisible</span>
+                        <div class="method-body">
+                            <div class="method-name">Visibility</div>
+                            <div class="method-desc">Controls <code>style.display</code>. <code>toggle(force?)</code>
+                                accepts an optional boolean.</div>
+                        </div>
+                    </div>
+                    <div class="highlight-box fade-up"><strong>Note:</strong> <code>elFromHtml(str)</code> creates an
+                        <code>Elements</code> instance directly from an HTML string via a <code>&lt;template&gt;</code>
+                        element — no DOM insertion needed.
+                    </div>
+                </div>
+                <div class="fade-up">
+                    <div class="code-panel code-block" data-js-label="el.js" data-ts-label="el.ts">
+                        <div class="code-block-bar">
+                            <div class="code-block-dots">
+                                <div class="dot dot-r"></div>
+                                <div class="dot dot-y"></div>
+                                <div class="dot dot-g"></div>
+                            </div>
+                            <span class="code-block-label">el.js</span>
+                            <div class="lang-switcher">
+                                <button class="lang-btn" data-lang="js">JS</button>
+                                <button class="lang-btn" data-lang="ts">TS</button>
+                            </div>
+                        </div>
+                        <div class="code-pane" data-lang="js">
+                            <pre><span class="cm">// Select & chain</span>
+bone.<span class="fn">el</span>(<span class="str">"#btn"</span>)
+  .<span class="fn">addClass</span>(<span class="str">"active"</span>)
+  .<span class="fn">text</span>(<span class="str">"Clicked!"</span>)
+  .<span class="fn">css</span>(<span class="str">"--color"</span>, <span class="str">"red"</span>);
+
+<span class="cm">// Scope-bound event listener</span>
+bone.<span class="fn">el</span>(<span class="str">"#btn"</span>).<span class="fn">on</span>(<span class="str">"click"</span>, e => {
+  <span class="cm">// auto-removed on scope.dispose()</span>
+}, scope);
+
+<span class="cm">// Traverse the DOM</span>
+bone.<span class="fn">el</span>(<span class="str">".list"</span>)
+  .<span class="fn">find</span>(<span class="str">"li"</span>)
+  .<span class="fn">filter</span>(<span class="str">".active"</span>)
+  .<span class="fn">each</span>(el => {
+    bone.<span class="fn">el</span>(el).<span class="fn">addClass</span>(<span class="str">"highlight"</span>);
+  });
+
+<span class="cm">// Create from HTML string</span>
+<span class="kw">const</span> card = bone.<span class="fn">elFromHtml</span>(
+  <span class="str">`&lt;div class="card"&gt;Hello&lt;/div&gt;`</span>
+);
+bone.<span class="fn">el</span>(<span class="str">"#container"</span>).<span class="fn">append</span>(card);
+
+<span class="cm">// Dispatch custom events</span>
+bone.<span class="fn">el</span>(<span class="str">"#form"</span>).<span class="fn">trigger</span>(<span class="str">"submit"</span>, {
+  data: { name: <span class="str">"Ada"</span> }
+});</pre>
+                        </div>
+                        <div class="code-pane" data-lang="ts">
+                            <pre><span class="kw">import</span> { el, elFromHtml, Elements } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="cm">// el() returns a typed Elements instance</span>
+<span class="kw">const</span> btn<span class="ty">: Elements</span> = <span class="fn">el</span>(<span class="str">"#btn"</span>);
+
+btn
+  .<span class="fn">addClass</span>(<span class="str">"active"</span>)
+  .<span class="fn">text</span>(<span class="str">"Clicked!"</span>)
+  .<span class="fn">css</span>(<span class="str">"--color"</span>, <span class="str">"red"</span>);
+
+btn.<span class="fn">on</span>(<span class="str">"click"</span>, (e<span class="ty">: Event</span>) => {}, scope);
+
+<span class="fn">el</span>(<span class="str">".list"</span>)
+  .<span class="fn">find</span>(<span class="str">"li"</span>)
+  .<span class="fn">filter</span>(<span class="str">".active"</span>)
+  .<span class="fn">each</span>((node<span class="ty">: Element</span>) => {
+    <span class="fn">el</span>(node).<span class="fn">addClass</span>(<span class="str">"highlight"</span>);
+  });
+
+<span class="kw">const</span> card<span class="ty">: Elements</span> = <span class="fn">elFromHtml</span>(
+  <span class="str">`&lt;div class="card"&gt;Hello&lt;/div&gt;`</span>
+);
+<span class="fn">el</span>(<span class="str">"#container"</span>).<span class="fn">append</span>(card);
+
+<span class="fn">el</span>(<span class="str">"#form"</span>).<span class="fn">trigger</span>(<span class="str">"submit"</span>, {
+  data: { name: <span class="str">"Ada"</span> }
+});</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="prim-section" id="view">
+        <div class="section-inner">
+            <div class="prim-header fade-up">
+                <div class="prim-icon-lg" style="background:rgba(251,191,36,.15)">🧱</div>
+                <div class="prim-header-text">
+                    <div class="prim-name">View</div>
+                    <div class="prim-tagline">Component base class with root element binding, child management, and
+                        MutationObserver auto-destroy.</div>
+                </div>
+            </div>
+            <div class="prop-badges fade-up"><span class="prop-badge yes">✓ ✓ Auto-destroy</span><span
+                    class="prop-badge yes">✓ ✓ Child views</span><span class="prop-badge yes">✓ ✓
+                    Scope-inherited</span><span class="prop-badge">Extend to use</span></div>
+            <div class="prim-body">
+                <div class="method-table fade-up">
+                    <div class="method-row">
+                        <span class="method-sig">constructor(root, model, opts?)</span>
+                        <div class="method-body">
+                            <div class="method-name">Constructor</div>
+                            <div class="method-desc">Binds to a root DOM element and optional model. Set
+                                <code>autoDestroy: false</code> to disable MutationObserver teardown.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">init()</span>
+                        <div class="method-body">
+                            <div class="method-name">Lifecycle hook</div>
+                            <div class="method-desc">Called once in constructor after scope setup. Override to wire
+                                event listeners and initial render logic.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">render()</span>
+                        <div class="method-body">
+                            <div class="method-name">Render hook</div>
+                            <div class="method-desc">Optional override for declarative render logic. Call manually or
+                                from model change listeners.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">$(selector)</span>
+                        <div class="method-body">
+                            <div class="method-name">Scoped query</div>
+                            <div class="method-desc">Queries within the view's root element. Returns an
+                                <code>Elements</code> instance.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">$root()</span>
+                        <div class="method-body">
+                            <div class="method-name">Root element</div>
+                            <div class="method-desc">Returns the view's root wrapped in <code>Elements</code>.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">on(event, fn) / onDocument / onWindow</span>
+                        <div class="method-body">
+                            <div class="method-name">Scoped listeners</div>
+                            <div class="method-desc">Listeners automatically removed when the view's scope disposes.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">createChild(ViewClass, el, model?)</span>
+                        <div class="method-body">
+                            <div class="method-name">Create child view</div>
+                            <div class="method-desc">Child scope is derived from parent. Child is destroyed when parent
+                                is destroyed.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">createChildren(ViewClass, selector, modelFn?)</span>
+                        <div class="method-body">
+                            <div class="method-name">Create multiple children</div>
+                            <div class="method-desc">Creates a child view for each element matching the selector.
+                                <code>modelFn(el, i)</code> provides per-element models.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">emit(event, detail?)</span>
+                        <div class="method-body">
+                            <div class="method-name">Dispatch event</div>
+                            <div class="method-desc">Dispatches a bubbling CustomEvent from the root element.</div>
+                        </div>
+                    </div>
+                    <div class="highlight-box fade-up"><strong>Note:</strong> When <code>autoDestroy</code> is enabled
+                        (default), a MutationObserver watches the root's parent. If the root is removed from the DOM,
+                        the view's scope disposes automatically.</div>
+                </div>
+                <div class="fade-up">
+                    <div class="code-panel code-block" data-js-label="view.js" data-ts-label="view.ts">
+                        <div class="code-block-bar">
+                            <div class="code-block-dots">
+                                <div class="dot dot-r"></div>
+                                <div class="dot dot-y"></div>
+                                <div class="dot dot-g"></div>
+                            </div>
+                            <span class="code-block-label">view.js</span>
+                            <div class="lang-switcher">
+                                <button class="lang-btn" data-lang="js">JS</button>
+                                <button class="lang-btn" data-lang="ts">TS</button>
+                            </div>
+                        </div>
+                        <div class="code-pane" data-lang="js">
+                            <pre><span class="kw">class</span> <span class="fn">CounterView</span> <span class="kw">extends</span> bone.View {
+
+  <span class="fn">init</span>() {
+    this.model.<span class="fn">watch</span>(<span class="str">"count"</span>, v => {
+      this.<span class="fn">$</span>(<span class="str">".count"</span>).<span class="fn">text</span>(v);
+    }, this.scope);
+
+    this.<span class="fn">on</span>(<span class="str">"click"</span>, () => {
+      this.model.<span class="fn">set</span>({
+        count: this.model.<span class="fn">get</span>(<span class="str">"count"</span>) + <span class="nm">1</span>
+      });
+    });
+  }
+
+  <span class="fn">render</span>() {
+    <span class="kw">const</span> { count } = this.model.<span class="fn">getAll</span>();
+    this.<span class="fn">$root</span>().<span class="fn">html</span>(
+      <span class="str">`&lt;span class="count"&gt;${count}&lt;/span&gt;`</span>
+    );
+  }
+}
+
+<span class="cm">// Mount with createView helper</span>
+<span class="kw">const</span> model = <span class="kw">new</span> bone.<span class="fn">Model</span>({ count: <span class="nm">0</span> });
+bone.<span class="fn">createView</span>(CounterView, <span class="str">"#counter"</span>, model);
+
+<span class="cm">// Create child views</span>
+<span class="kw">class</span> <span class="fn">AppView</span> <span class="kw">extends</span> bone.View {
+  <span class="fn">init</span>() {
+    this.<span class="fn">createChildren</span>(CounterView, <span class="str">".counter"</span>);
+  }
+}</pre>
+                        </div>
+                        <div class="code-pane" data-lang="ts">
+                            <pre><span class="kw">import</span> { View, Model, createView } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">interface</span> <span class="ty">CounterState</span> { count<span class="ty">: number</span>; }
+
+<span class="kw">class</span> <span class="fn">CounterView</span> <span class="kw">extends</span> <span class="fn">View</span><span class="gi">&lt;</span><span class="ty">Model&lt;CounterState&gt;</span><span class="gi">&gt;</span> {
+
+  <span class="fn">init</span>()<span class="ty">: void</span> {
+    this.model.<span class="fn">watch</span>(<span class="str">"count"</span>, (v) => {
+      this.<span class="fn">$</span>(<span class="str">".count"</span>).<span class="fn">text</span>(String(v));
+    }, this.scope);
+
+    this.<span class="fn">on</span>(<span class="str">"click"</span>, () => {
+      this.model.<span class="fn">set</span>({
+        count: this.model.<span class="fn">get</span>(<span class="str">"count"</span>) + <span class="nm">1</span>
+      });
+    });
+  }
+
+  <span class="fn">render</span>()<span class="ty">: void</span> {
+    <span class="kw">const</span> { count } = this.model.<span class="fn">getAll</span>();
+    this.<span class="fn">$root</span>().<span class="fn">html</span>(
+      <span class="str">`&lt;span class="count"&gt;${count}&lt;/span&gt;`</span>
+    );
+  }
+}
+
+<span class="kw">const</span> model = <span class="kw">new</span> <span class="fn">Model</span><span class="gi">&lt;</span><span class="ty">CounterState</span><span class="gi">&gt;</span>({ count: <span class="nm">0</span> });
+<span class="fn">createView</span>(CounterView, <span class="str">"#counter"</span>, model);</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="prim-section" id="scope">
+        <div class="section-inner">
+            <div class="prim-header fade-up">
+                <div class="prim-icon-lg" style="background:rgba(167,139,250,.15)">🔭</div>
+                <div class="prim-header-text">
+                    <div class="prim-name">Scope System</div>
+                    <div class="prim-tagline">Hierarchical lifetime management. Disposal cascades to all children,
+                        cleaning listeners, timers, and resources.</div>
+                </div>
+            </div>
+            <div class="prop-badges fade-up"><span class="prop-badge yes">✓ ✓ Hierarchical</span><span
+                    class="prop-badge yes">✓ ✓ AbortSignal-backed</span><span class="prop-badge yes">✓ ✓ Browser &amp;
+                    Node.js</span><span class="prop-badge yes">✓ ✓ Leak detection</span></div>
+            <div class="prim-body">
+                <div class="method-table fade-up">
+                    <div class="method-row">
+                        <span class="method-sig">createScope(opts?)</span>
+                        <div class="method-body">
+                            <div class="method-name">Browser scope</div>
+                            <div class="method-desc">Creates a scope attached to a shared browser root. The root
+                                auto-disposes on <code>pagehide</code> and <code>beforeunload</code>.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">createRootScope(opts?)</span>
+                        <div class="method-body">
+                            <div class="method-name">Root scope</div>
+                            <div class="method-desc">Creates a standalone root scope. Use in Node.js, Web Workers, or
+                                SSR where <code>window</code> is not available.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">scope.createChild()</span>
+                        <div class="method-body">
+                            <div class="method-name">Child scope</div>
+                            <div class="method-desc">Creates a child scope. Disposing the parent disposes all children
+                                first.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">scope.onDispose(fn)</span>
+                        <div class="method-body">
+                            <div class="method-name">Cleanup callback</div>
+                            <div class="method-desc">Registers a cleanup function to run on disposal. Runs in reverse
+                                registration order (LIFO).</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">scope.dispose()</span>
+                        <div class="method-body">
+                            <div class="method-name">Dispose</div>
+                            <div class="method-desc">Disposes this scope and all children. Aborts
+                                <code>scope.signal</code>. Safe to call multiple times.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">scope.signal</span>
+                        <div class="method-body">
+                            <div class="method-name">AbortSignal</div>
+                            <div class="method-desc">The underlying <code>AbortSignal</code>. Pass directly to
+                                <code>fetch()</code>, <code>addEventListener()</code>, and any AbortSignal-aware API.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">isScopeDisposed(scope)</span>
+                        <div class="method-body">
+                            <div class="method-name">Check disposed</div>
+                            <div class="method-desc">Returns <code>true</code> if <code>scope.signal.aborted</code> is
+                                true.</div>
+                        </div>
+                    </div>
+                    <div class="highlight-box fade-up"><strong>Note:</strong> Pass <code>{ debug: true }</code> to get
+                        console warnings when more than 50 cleanup callbacks are registered on a single scope — a signal
+                        of potential leaks.</div>
+                </div>
+                <div class="fade-up">
+                    <div class="code-panel code-block" data-js-label="scope.js" data-ts-label="scope.ts">
+                        <div class="code-block-bar">
+                            <div class="code-block-dots">
+                                <div class="dot dot-r"></div>
+                                <div class="dot dot-y"></div>
+                                <div class="dot dot-g"></div>
+                            </div>
+                            <span class="code-block-label">scope.js</span>
+                            <div class="lang-switcher">
+                                <button class="lang-btn" data-lang="js">JS</button>
+                                <button class="lang-btn" data-lang="ts">TS</button>
+                            </div>
+                        </div>
+                        <div class="code-pane" data-lang="js">
+                            <pre><span class="cm">// Browser scope (auto page-level cleanup)</span>
+<span class="kw">const</span> app = bone.<span class="fn">createScope</span>();
+
+<span class="cm">// Child scopes for sub-features</span>
+<span class="kw">const</span> modal  = app.<span class="fn">createChild</span>();
+<span class="kw">const</span> widget = app.<span class="fn">createChild</span>();
+
+<span class="cm">// Register cleanup</span>
+modal.<span class="fn">onDispose</span>(() => {
+  console.<span class="fn">log</span>(<span class="str">"modal cleaned up"</span>);
+});
+
+<span class="cm">// Pass signal to native APIs</span>
+document.<span class="fn">addEventListener</span>(
+  <span class="str">"keydown"</span>, handler,
+  { signal: modal.signal }
+);
+
+modal.<span class="fn">dispose</span>(); <span class="cm">// app & widget still alive</span>
+app.<span class="fn">dispose</span>();   <span class="cm">// widget disposed too</span>
+
+bone.<span class="fn">isScopeDisposed</span>(app); <span class="cm">// → true</span>
+
+<span class="cm">// Node.js / SSR / Worker</span>
+<span class="kw">const</span> root = bone.<span class="fn">createRootScope</span>({ debug: <span class="kw">true</span> });</pre>
+                        </div>
+                        <div class="code-pane" data-lang="ts">
+                            <pre><span class="kw">import</span> { createScope, createRootScope, isScopeDisposed, Scope } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">const</span> app<span class="ty">: Scope</span>    = <span class="fn">createScope</span>();
+<span class="kw">const</span> modal<span class="ty">: Scope</span>  = app.<span class="fn">createChild</span>();
+<span class="kw">const</span> widget<span class="ty">: Scope</span> = app.<span class="fn">createChild</span>();
+
+modal.<span class="fn">onDispose</span>(() => {
+  console.<span class="fn">log</span>(<span class="str">"modal cleaned up"</span>);
+});
+
+<span class="cm">// scope.signal: AbortSignal — native API integration</span>
+document.<span class="fn">addEventListener</span>(
+  <span class="str">"keydown"</span>, handler,
+  { signal: modal.signal }
+);
+
+modal.<span class="fn">dispose</span>();
+app.<span class="fn">dispose</span>();
+
+<span class="fn">isScopeDisposed</span>(app); <span class="cm">// → true</span>
+
+<span class="kw">const</span> root<span class="ty">: Scope</span> = <span class="fn">createRootScope</span>({ debug: <span class="kw">true</span> });</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="prim-section" id="refresh">
+        <div class="section-inner">
+            <div class="prim-header fade-up">
+                <div class="prim-icon-lg" style="background:rgba(249,115,22,.15)">⏱</div>
+                <div class="prim-header-text">
+                    <div class="prim-name">createRefresh</div>
+                    <div class="prim-tagline">Interval-based async poller with pause/resume, exponential backoff, and
+                        scope-aware cleanup.</div>
+                </div>
+            </div>
+            <div class="prop-badges fade-up"><span class="prop-badge yes">✓ ✓ Pause / Resume</span><span
+                    class="prop-badge yes">✓ ✓ Exponential backoff</span><span class="prop-badge yes">✓ ✓ Max
+                    retries</span><span class="prop-badge yes">✓ ✓ Skip overlap</span></div>
+            <div class="prim-body">
+                <div class="method-table fade-up">
+                    <div class="method-row">
+                        <span class="method-sig">createRefresh(fn, opts)</span>
+                        <div class="method-body">
+                            <div class="method-name">Create a poller</div>
+                            <div class="method-desc">Runs <code>fn(signal)</code> on an interval. The signal is aborted
+                                if the poller stops mid-execution.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">opts.interval</span>
+                        <div class="method-body">
+                            <div class="method-name">Interval (ms)</div>
+                            <div class="method-desc">Required. Time between the end of one tick and the start of the
+                                next.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">opts.immediate</span>
+                        <div class="method-body">
+                            <div class="method-name">Run immediately</div>
+                            <div class="method-desc">Default <code>true</code>. If true, the first tick fires
+                                immediately rather than waiting for the first interval.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">opts.startPaused</span>
+                        <div class="method-body">
+                            <div class="method-name">Start paused</div>
+                            <div class="method-desc">If true, the poller is created but doesn't start until
+                                <code>resume()</code> is called.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">opts.backoff</span>
+                        <div class="method-body">
+                            <div class="method-name">Exponential backoff</div>
+                            <div class="method-desc">Doubles the interval after each consecutive error (capped at 10×).
+                                Resets to base on success.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">opts.maxRetries</span>
+                        <div class="method-body">
+                            <div class="method-name">Max consecutive errors</div>
+                            <div class="method-desc">Stops the poller automatically after this many consecutive errors.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">pause() / resume() / stop()</span>
+                        <div class="method-body">
+                            <div class="method-name">Control</div>
+                            <div class="method-desc"><code>pause()</code> halts ticking; <code>resume()</code> restarts
+                                it. <code>stop()</code> permanently stops and aborts any in-flight tick.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">isPaused() / isExecuting()</span>
+                        <div class="method-body">
+                            <div class="method-name">State inspection</div>
+                            <div class="method-desc">Returns current poller state. A tick is skipped if a previous one
+                                is still running.</div>
+                        </div>
+                    </div>
+                    <div class="highlight-box fade-up"><strong>Note:</strong> If a tick is still running when the next
+                        interval fires, the new tick is silently skipped — no piling up of concurrent requests.</div>
+                </div>
+                <div class="fade-up">
+                    <div class="code-panel code-block" data-js-label="refresh.js" data-ts-label="refresh.ts">
+                        <div class="code-block-bar">
+                            <div class="code-block-dots">
+                                <div class="dot dot-r"></div>
+                                <div class="dot dot-y"></div>
+                                <div class="dot dot-g"></div>
+                            </div>
+                            <span class="code-block-label">refresh.js</span>
+                            <div class="lang-switcher">
+                                <button class="lang-btn" data-lang="js">JS</button>
+                                <button class="lang-btn" data-lang="ts">TS</button>
+                            </div>
+                        </div>
+                        <div class="code-pane" data-lang="js">
+                            <pre><span class="kw">const</span> poller = bone.<span class="fn">createRefresh</span>(
+  <span class="kw">async</span> (signal) => {
+    <span class="kw">const</span> data = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">"/api/feed"</span>, {
+      signal
+    }).<span class="fn">then</span>(r => r.<span class="fn">json</span>());
+    feed.<span class="fn">reset</span>(data);
+  },
+  {
+    interval:   <span class="nm">5000</span>,
+    scope,
+    immediate:  <span class="kw">true</span>,
+    backoff:    <span class="kw">true</span>,
+    maxRetries: <span class="nm">5</span>,
+    onError:    err => console.<span class="fn">warn</span>(err),
+  }
+);
+
+<span class="cm">// Pause when tab is hidden</span>
+document.<span class="fn">addEventListener</span>(<span class="str">"visibilitychange"</span>, () => {
+  document.hidden
+    ? poller.<span class="fn">pause</span>()
+    : poller.<span class="fn">resume</span>();
+});
+
+poller.<span class="fn">isPaused</span>();    <span class="cm">// → false</span>
+poller.<span class="fn">isExecuting</span>(); <span class="cm">// → true/false</span>
+poller.<span class="fn">stop</span>();</pre>
+                        </div>
+                        <div class="code-pane" data-lang="ts">
+                            <pre><span class="kw">import</span> { createRefresh, RefreshHandle, Collection } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">const</span> poller<span class="ty">: RefreshHandle</span> = <span class="fn">createRefresh</span>(
+  <span class="kw">async</span> (signal<span class="ty">: AbortSignal</span>) => {
+    <span class="kw">const</span> data = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">"/api/feed"</span>, { signal })
+      .<span class="fn">then</span>((r) => r.<span class="fn">json</span>());
+    feed.<span class="fn">reset</span>(data);
+  },
+  {
+    interval<span class="ty">:</span>   <span class="nm">5000</span>,
+    scope,
+    immediate<span class="ty">:</span>  <span class="kw">true</span>,
+    backoff<span class="ty">:</span>    <span class="kw">true</span>,
+    maxRetries<span class="ty">:</span> <span class="nm">5</span>,
+    onError<span class="ty">:</span>    (err<span class="ty">: unknown</span>) => console.<span class="fn">warn</span>(err),
+  }
+);
+
+document.<span class="fn">addEventListener</span>(<span class="str">"visibilitychange"</span>, () => {
+  document.hidden ? poller.<span class="fn">pause</span>() : poller.<span class="fn">resume</span>();
+});
+
+poller.<span class="fn">isPaused</span>();
+poller.<span class="fn">isExecuting</span>();
+poller.<span class="fn">stop</span>();</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="prim-section" id="fetch">
+        <div class="section-inner">
+            <div class="prim-header fade-up">
+                <div class="prim-icon-lg" style="background:rgba(56,189,248,.15)">🌐</div>
+                <div class="prim-header-text">
+                    <div class="prim-name">fetchJson</div>
+                    <div class="prim-tagline">Scope-aware JSON fetcher with timeout, retries, backoff, and request
+                        deduplication.</div>
+                </div>
+            </div>
+            <div class="prop-badges fade-up"><span class="prop-badge yes">✓ ✓ Auto-cancel on dispose</span><span
+                    class="prop-badge yes">✓ ✓ Dedupe</span><span class="prop-badge yes">✓ ✓ Retry + backoff</span><span
+                    class="prop-badge yes">✓ ✓ Timeout</span></div>
+            <div class="prim-body">
+                <div class="method-table fade-up">
+                    <div class="method-row">
+                        <span class="method-sig">fetchJson(url, opts?)</span>
+                        <div class="method-body">
+                            <div class="method-name">Fetch JSON</div>
+                            <div class="method-desc">Fetches the URL, parses as JSON, and returns it. Aborted when the
+                                scope disposes.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">opts.scope</span>
+                        <div class="method-body">
+                            <div class="method-name">Scope binding</div>
+                            <div class="method-desc">Aborts the request and all retries if the scope disposes
+                                mid-flight.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">opts.timeout</span>
+                        <div class="method-body">
+                            <div class="method-name">Request timeout</div>
+                            <div class="method-desc">Milliseconds before aborting. Applied per attempt when combined
+                                with retries.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">opts.retryOnFailure</span>
+                        <div class="method-body">
+                            <div class="method-name">Retry count</div>
+                            <div class="method-desc">Number of additional attempts on failure. Does not retry on
+                                <code>AbortError</code>.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">opts.retryDelay</span>
+                        <div class="method-body">
+                            <div class="method-name">Delay between retries</div>
+                            <div class="method-desc">Milliseconds to wait between retry attempts. The delay is also
+                                abortable.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">opts.dedupe</span>
+                        <div class="method-body">
+                            <div class="method-name">Request deduplication</div>
+                            <div class="method-desc">When <code>true</code>, identical in-flight requests within the
+                                same scope share the same Promise.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">opts.parse</span>
+                        <div class="method-body">
+                            <div class="method-name">Custom parser</div>
+                            <div class="method-desc">Optional transform function applied to the parsed JSON before
+                                resolving.</div>
+                        </div>
+                    </div>
+                    <div class="method-row">
+                        <span class="method-sig">opts.init</span>
+                        <div class="method-body">
+                            <div class="method-name">Fetch init</div>
+                            <div class="method-desc">Passed directly to native <code>fetch()</code>. Set method,
+                                headers, body, credentials, etc.</div>
+                        </div>
+                    </div>
+                    <div class="highlight-box fade-up"><strong>Note:</strong> The dedupe cache is keyed per-scope
+                        instance. Two different scopes fetching the same URL will not share a request.</div>
+                </div>
+                <div class="fade-up">
+                    <div class="code-panel code-block" data-js-label="fetchJson.js" data-ts-label="fetchJson.ts">
+                        <div class="code-block-bar">
+                            <div class="code-block-dots">
+                                <div class="dot dot-r"></div>
+                                <div class="dot dot-y"></div>
+                                <div class="dot dot-g"></div>
+                            </div>
+                            <span class="code-block-label">fetchJson.js</span>
+                            <div class="lang-switcher">
+                                <button class="lang-btn" data-lang="js">JS</button>
+                                <button class="lang-btn" data-lang="ts">TS</button>
+                            </div>
+                        </div>
+                        <div class="code-pane" data-lang="js">
+                            <pre><span class="cm">// Simple fetch with scope</span>
+<span class="kw">const</span> user = <span class="kw">await</span> bone.<span class="fn">fetchJson</span>(
+  <span class="str">"/api/user/1"</span>,
+  { scope }
+);
+
+<span class="cm">// With timeout & retries</span>
+<span class="kw">const</span> data = <span class="kw">await</span> bone.<span class="fn">fetchJson</span>(
+  <span class="str">"/api/data"</span>,
+  {
+    scope,
+    timeout:        <span class="nm">5000</span>,
+    retryOnFailure: <span class="nm">3</span>,
+    retryDelay:     <span class="nm">1000</span>,
+  }
+);
+
+<span class="cm">// Deduplicated — same Promise returned</span>
+bone.<span class="fn">fetchJson</span>(<span class="str">"/api/config"</span>, { scope, dedupe: <span class="kw">true</span> });
+bone.<span class="fn">fetchJson</span>(<span class="str">"/api/config"</span>, { scope, dedupe: <span class="kw">true</span> });
+<span class="cm">// → only ONE network request made</span>
+
+<span class="cm">// POST with custom init</span>
+<span class="kw">const</span> result = <span class="kw">await</span> bone.<span class="fn">fetchJson</span>(
+  <span class="str">"/api/save"</span>,
+  {
+    scope,
+    init: {
+      method:  <span class="str">"POST"</span>,
+      headers: { <span class="str">"Content-Type"</span>: <span class="str">"application/json"</span> },
+      body:    <span class="fn">JSON.stringify</span>({ name: <span class="str">"Ada"</span> }),
+    },
+    parse: res => res.data,
+  }
+);</pre>
+                        </div>
+                        <div class="code-pane" data-lang="ts">
+                            <pre><span class="kw">import</span> { fetchJson } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">interface</span> <span class="ty">User</span> { id<span class="ty">: number</span>; name<span class="ty">: string</span>; }
+
+<span class="kw">const</span> user = <span class="kw">await</span> <span class="fn">fetchJson</span><span class="gi">&lt;</span><span class="ty">User</span><span class="gi">&gt;</span>(
+  <span class="str">"/api/user/1"</span>,
+  { scope }
+);
+<span class="cm">// user.name is string ✓</span>
+
+<span class="kw">const</span> data = <span class="kw">await</span> <span class="fn">fetchJson</span><span class="gi">&lt;</span><span class="ty">User[]</span><span class="gi">&gt;</span>(
+  <span class="str">"/api/data"</span>,
+  {
+    scope,
+    timeout<span class="ty">:</span>        <span class="nm">5000</span>,
+    retryOnFailure<span class="ty">:</span> <span class="nm">3</span>,
+    retryDelay<span class="ty">:</span>     <span class="nm">1000</span>,
+  }
+);
+
+<span class="cm">// Deduplicated within same scope</span>
+<span class="fn">fetchJson</span>(<span class="str">"/api/config"</span>, { scope, dedupe: <span class="kw">true</span> });
+<span class="fn">fetchJson</span>(<span class="str">"/api/config"</span>, { scope, dedupe: <span class="kw">true</span> });
+
+<span class="kw">const</span> result = <span class="kw">await</span> <span class="fn">fetchJson</span><span class="gi">&lt;</span><span class="ty">User</span><span class="gi">&gt;</span>(
+  <span class="str">"/api/save"</span>,
+  {
+    scope,
+    init: { method: <span class="str">"POST"</span>, body: <span class="fn">JSON.stringify</span>({ name: <span class="str">"Ada"</span> }) },
+    parse<span class="ty">: (res: { data: User })</span> => res.data,
+  }
+);</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer>
+        <div>🦴 bonemarrow.js — the core of your app</div>
+        <div class="footer-links">
+            <a href="https://www.npmjs.com/package/bonemarrow" target="_blank">npm</a>
+            <a href="https://cdn.jsdelivr.net/npm/bonemarrow" target="_blank">CDN</a>
+        </div>
+    </footer>
+
+    <script src="shared.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Prim-nav active on scroll
+            var sections = document.querySelectorAll(".prim-section");
+            var tabs = document.querySelectorAll(".prim-tab");
+            var sio = new IntersectionObserver(function (entries) {
+                entries.forEach(function (e) {
+                    if (!e.isIntersecting) return;
+                    var id = e.target.id;
+                    tabs.forEach(function (t) {
+                        t.classList.toggle("active", t.getAttribute("href") === "#" + id);
+                    });
+                });
+            }, { rootMargin: "-40% 0px -55% 0px" });
+            sections.forEach(function (s) { sio.observe(s); });
+
+            // Fade-up
+            var fio = new IntersectionObserver(function (entries) {
+                entries.forEach(function (e) { if (e.isIntersecting) e.target.classList.add("visible"); });
+            }, { threshold: 0.08 });
+            document.querySelectorAll(".fade-up").forEach(function (el) { fio.observe(el); });
+
+            // Hero entrance
+            setTimeout(function () { var e = document.getElementById("hero-title"); if (e) e.classList.add("visible"); }, 100);
+            setTimeout(function () { var e = document.getElementById("hero-sub"); if (e) e.classList.add("visible"); }, 200);
+        });
+    </script>
+</body>
+
+</html>

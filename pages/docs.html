@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Docs — BoneMarrow.js</title>
+    <script>
+        (function () {
+            var t = localStorage.getItem("bm-theme") ||
+                (window.matchMedia("(prefers-color-scheme:light)").matches ? "light" : "dark");
+            document.documentElement.setAttribute("data-theme", t);
+        })();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bonemarrow"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="bonemarrow.css" />
+</head>
+
+<body>
+
+    <nav>
+        <a class="nav-logo" href="index.html">
+            <div class="logo-icon">🦴</div>
+            bonemarrow
+        </a>
+        <div class="nav-right">
+            <a class="nav-link" href="index.html">Home</a>
+            <a class="nav-link" href="features.html">Features</a>
+            <a class="nav-link" href="docs.html" style="color:var(--accent)">Docs</a>
+            <button id="theme-toggle"><span id="theme-icon"></span><span id="theme-label"></span></button>
+            <a class="btn-coffee" href="https://paypal.me/KarthickRajS" target="_blank">☕ Buy me a coffee</a>
+        </div>
+    </nav>
+
+    <div class="docs-layout">
+
+        <aside class="docs-sidebar">
+            <div class="sidebar-group">
+                <div class="sidebar-group-label">Getting Started</div>
+                <a class="sidebar-link active" href="#introduction"><span class="sbl-icon">👋</span> Introduction</a>
+                <a class="sidebar-link" href="#installation"><span class="sbl-icon">📦</span> Installation</a>
+                <a class="sidebar-link" href="#quickstart"><span class="sbl-icon">⚡</span> Quick Start</a>
+                <a class="sidebar-link" href="#concepts"><span class="sbl-icon">🧠</span> Core Concepts</a>
+            </div>
+            <div class="sidebar-group">
+                <div class="sidebar-group-label">Scope System</div>
+                <a class="sidebar-link" href="#scope"><span class="sbl-icon">🔭</span> createScope</a>
+                <a class="sidebar-link" href="#rootscope"><span class="sbl-icon">🌱</span> createRootScope</a>
+                <a class="sidebar-link" href="#isdisposed"><span class="sbl-icon">🔍</span> isScopeDisposed</a>
+            </div>
+            <div class="sidebar-group">
+                <div class="sidebar-group-label">State</div>
+                <a class="sidebar-link" href="#model"><span class="sbl-icon">📦</span> Model</a>
+                <div class="sidebar-sub">
+                    <a class="sidebar-link" href="#model-set">set / get / getAll</a>
+                    <a class="sidebar-link" href="#model-watch">watch / onChange</a>
+                    <a class="sidebar-link" href="#model-dirty">isDirty / has / reset</a>
+                    <a class="sidebar-link" href="#model-fetch">fetch / autoRefresh</a>
+                </div>
+                <a class="sidebar-link" href="#collection"><span class="sbl-icon">🗂</span> Collection</a>
+                <div class="sidebar-sub">
+                    <a class="sidebar-link" href="#col-mutate">add / remove / update</a>
+                    <a class="sidebar-link" href="#col-order">sort / move / reset</a>
+                    <a class="sidebar-link" href="#col-events">events</a>
+                </div>
+            </div>
+            <div class="sidebar-group">
+                <div class="sidebar-group-label">Events</div>
+                <a class="sidebar-link" href="#emitter"><span class="sbl-icon">📡</span> Emitter</a>
+                <div class="sidebar-sub">
+                    <a class="sidebar-link" href="#emitter-on">on / once / off</a>
+                    <a class="sidebar-link" href="#emitter-emit">emit / emitAsync</a>
+                    <a class="sidebar-link" href="#emitter-async">onceAsync</a>
+                </div>
+            </div>
+            <div class="sidebar-group">
+                <div class="sidebar-group-label">DOM</div>
+                <a class="sidebar-link" href="#el"><span class="sbl-icon">🎯</span> el()</a>
+                <div class="sidebar-sub">
+                    <a class="sidebar-link" href="#el-content">content &amp; classes</a>
+                    <a class="sidebar-link" href="#el-events">events</a>
+                    <a class="sidebar-link" href="#el-traverse">traversal</a>
+                    <a class="sidebar-link" href="#el-mutate">mutation</a>
+                </div>
+                <a class="sidebar-link" href="#view"><span class="sbl-icon">🧱</span> View</a>
+                <div class="sidebar-sub">
+                    <a class="sidebar-link" href="#view-lifecycle">lifecycle</a>
+                    <a class="sidebar-link" href="#view-children">children</a>
+                </div>
+            </div>
+            <div class="sidebar-group">
+                <div class="sidebar-group-label">Async / Network</div>
+                <a class="sidebar-link" href="#fetchjson"><span class="sbl-icon">🌐</span> fetchJson</a>
+                <a class="sidebar-link" href="#refresh"><span class="sbl-icon">⏱</span> createRefresh</a>
+            </div>
+            <div class="sidebar-group">
+                <div class="sidebar-group-label">Utilities</div>
+                <a class="sidebar-link" href="#elfromhtml"><span class="sbl-icon">🏗</span> elFromHtml</a>
+                <a class="sidebar-link" href="#createview"><span class="sbl-icon">🔧</span> createView</a>
+            </div>
+        </aside>
+
+        <main class="docs-content">
+
+            <div class="docs-section" id="introduction">
+                <h2 class="docs-h2">
+                    <div class="d-icon" style="background:rgba(167,139,250,.15)">👋</div>Introduction
+                </h2>
+                <p class="docs-p"><strong>BoneMarrow.js</strong> is a lightweight, zero-dependency JavaScript library
+                    providing the structural core for reactive UIs. It gives you eight primitives — Model, Collection,
+                    Emitter, el(), View, Scope, createRefresh, and fetchJson — unified by a <strong>scope
+                        system</strong> that makes resource cleanup automatic and leak-free.</p>
+                <p class="docs-p">Unlike full frameworks, BoneMarrow has no virtual DOM, no compilation step, and no
+                    opinions about rendering. It runs in the browser and in Node.js / SSR environments.</p>
+                <div class="docs-toc">
+                    <div class="docs-toc-title">On this page</div>
+                    <ul class="docs-toc-list">
+                        <li><a href="#installation"><span class="toc-icon">📦</span> Installation</a></li>
+                        <li><a href="#quickstart"><span class="toc-icon">⚡</span> Quick Start</a></li>
+                        <li><a href="#concepts"><span class="toc-icon">🧠</span> Core Concepts</a></li>
+                        <li><a href="#scope"><span class="toc-icon">🔭</span> Scope System</a></li>
+                        <li><a href="#model"><span class="toc-icon">📦</span> Model</a></li>
+                        <li><a href="#collection"><span class="toc-icon">🗂</span> Collection</a></li>
+                        <li><a href="#emitter"><span class="toc-icon">📡</span> Emitter</a></li>
+                        <li><a href="#el"><span class="toc-icon">🎯</span> el()</a></li>
+                        <li><a href="#view"><span class="toc-icon">🧱</span> View</a></li>
+                        <li><a href="#fetchjson"><span class="toc-icon">🌐</span> fetchJson</a></li>
+                        <li><a href="#refresh"><span class="toc-icon">⏱</span> createRefresh</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="docs-section" id="installation">
+                <h2 class="docs-h2">
+                    <div class="d-icon" style="background:rgba(56,189,248,.15)">📦</div>Installation
+                </h2>
+                <p class="docs-p">BoneMarrow is available via npm and CDN. All exports live on the global
+                    <code>bone</code> object when loaded via script tag.
+                </p>
+                <div class="install-grid">
+                    <div class="install-option">
+                        <div class="install-label">npm</div>
+                        <pre><span class="nm">npm</span> install bonemarrow</pre>
+                    </div>
+                    <div class="install-option">
+                        <div class="install-label">CDN (jsDelivr)</div>
+                        <pre><span class="str">cdn.jsdelivr.net/npm/bonemarrow</span></pre>
+                    </div>
+                </div>
+                <h3 class="docs-h3">Script tag (browser)</h3>
+                <div class="docs-code code-block" data-js-label="index.html" data-ts-label="index.html">
+                    <div class="code-block-bar">
+                        <div class="code-block-dots">
+                            <div class="dot dot-r"></div>
+                            <div class="dot dot-y"></div>
+                            <div class="dot dot-g"></div>
+                        </div><span class="code-block-label">index.html</span>
+                        <div class="lang-switcher"><button class="lang-btn" data-lang="js">JS</button><button
+                                class="lang-btn" data-lang="ts">TS</button></div>
+                    </div>
+                    <div class="code-pane" data-lang="js">
+                        <pre><span class="kw">&lt;script</span> <span class="fn">src</span>=<span class="str">"https://cdn.jsdelivr.net/npm/bonemarrow"</span><span class="kw">&gt;&lt;/script&gt;</span>
+<span class="kw">&lt;script&gt;</span>
+  <span class="kw">const</span> scope = bone.<span class="fn">createScope</span>();
+  <span class="kw">const</span> model = <span class="kw">new</span> bone.<span class="fn">Model</span>({ count: <span class="nm">0</span> }, scope);
+<span class="kw">&lt;/script&gt;</span></pre>
+                    </div>
+                    <div class="code-pane" data-lang="ts">
+                        <pre><span class="kw">import</span> { createScope, Model } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">interface</span> <span class="ty">S</span> { count<span class="ty">: number</span>; }
+<span class="kw">const</span> scope = <span class="fn">createScope</span>();
+<span class="kw">const</span> model = <span class="kw">new</span> <span class="fn">Model</span><span class="gi">&lt;</span><span class="ty">S</span><span class="gi">&gt;</span>({ count: <span class="nm">0</span> }, scope);</pre>
+                    </div>
+                </div>
+                <div class="callout callout-info"><span class="callout-icon">ℹ️</span>
+                    <div class="callout-body">The minified bundle is <strong>~19kb</strong> with zero runtime
+                        dependencies. Ships both ESM and CJS builds.</div>
+                </div>
+            </div>
+
+            <div class="docs-section" id="quickstart">
+                <h2 class="docs-h2">
+                    <div class="d-icon" style="background:rgba(74,222,128,.15)">⚡</div>Quick Start
+                </h2>
+                <p class="docs-p">Wire a Model, Collection, DOM bindings, and an event bus together — all cleaned up
+                    automatically when the page unloads.</p>
+                <div class="docs-code code-block" data-js-label="app.js" data-ts-label="app.ts">
+                    <div class="code-block-bar">
+                        <div class="code-block-dots">
+                            <div class="dot dot-r"></div>
+                            <div class="dot dot-y"></div>
+                            <div class="dot dot-g"></div>
+                        </div>
+                        <span class="code-block-label">app.js</span>
+                        <div class="lang-switcher">
+                            <button class="lang-btn" data-lang="js">JS</button>
+                            <button class="lang-btn" data-lang="ts">TS</button>
+                        </div>
+                    </div>
+                    <div class="code-pane" data-lang="js">
+                        <pre><span class="cm">// 1. Create a scope</span>
+<span class="kw">const</span> scope = bone.<span class="fn">createScope</span>();
+
+<span class="cm">// 2. Model — reactive key/value state</span>
+<span class="kw">const</span> user = <span class="kw">new</span> bone.<span class="fn">Model</span>(
+  { name: <span class="str">"Ada"</span>, score: <span class="nm">0</span> },
+  scope
+);
+
+<span class="cm">// 3. Collection — reactive list</span>
+<span class="kw">const</span> log = <span class="kw">new</span> bone.<span class="fn">Collection</span>([], scope);
+
+<span class="cm">// 4. Watch state changes</span>
+user.<span class="fn">watch</span>(<span class="str">"score"</span>, score => {
+  bone.<span class="fn">el</span>(<span class="str">"#score"</span>).<span class="fn">text</span>(<span class="str">`Score: ${score}`</span>);
+}, scope);
+
+<span class="cm">// 5. Re-render list on any change</span>
+log.<span class="fn">onChange</span>(() => {
+  bone.<span class="fn">el</span>(<span class="str">"#log"</span>).<span class="fn">html</span>(
+    log.<span class="fn">map</span>(e => <span class="str">`&lt;li&gt;${e}&lt;/li&gt;`</span>).<span class="fn">join</span>(<span class="str">""</span>)
+  );
+}, scope);
+
+<span class="cm">// 6. Bind a button</span>
+bone.<span class="fn">el</span>(<span class="str">"#btn"</span>).<span class="fn">on</span>(<span class="str">"click"</span>, () => {
+  <span class="kw">const</span> next = user.<span class="fn">get</span>(<span class="str">"score"</span>) + <span class="nm">1</span>;
+  user.<span class="fn">set</span>({ score: next });
+  log.<span class="fn">add</span>(<span class="str">`score → ${next}`</span>);
+}, scope);</pre>
+                    </div>
+                    <div class="code-pane" data-lang="ts">
+                        <pre><span class="kw">import</span> { createScope, Model, Collection, el } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">interface</span> <span class="ty">UserState</span> { name<span class="ty">: string</span>; score<span class="ty">: number</span>; }
+
+<span class="kw">const</span> scope = <span class="fn">createScope</span>();
+
+<span class="kw">const</span> user = <span class="kw">new</span> <span class="fn">Model</span><span class="gi">&lt;</span><span class="ty">UserState</span><span class="gi">&gt;</span>(
+  { name: <span class="str">"Ada"</span>, score: <span class="nm">0</span> }, scope
+);
+
+<span class="kw">const</span> log = <span class="kw">new</span> <span class="fn">Collection</span><span class="gi">&lt;</span><span class="ty">string</span><span class="gi">&gt;</span>([], scope);
+
+user.<span class="fn">watch</span>(<span class="str">"score"</span>, (score) => {
+  <span class="fn">el</span>(<span class="str">"#score"</span>).<span class="fn">text</span>(<span class="str">`Score: ${score}`</span>);
+}, scope);
+
+log.<span class="fn">onChange</span>(() => {
+  <span class="fn">el</span>(<span class="str">"#log"</span>).<span class="fn">html</span>(
+    log.<span class="fn">map</span>((e<span class="ty">: string</span>) => <span class="str">`&lt;li&gt;${e}&lt;/li&gt;`</span>).<span class="fn">join</span>(<span class="str">""</span>)
+  );
+}, scope);
+
+<span class="fn">el</span>(<span class="str">"#btn"</span>).<span class="fn">on</span>(<span class="str">"click"</span>, () => {
+  <span class="kw">const</span> next = user.<span class="fn">get</span>(<span class="str">"score"</span>) + <span class="nm">1</span>;
+  user.<span class="fn">set</span>({ score: next });
+  log.<span class="fn">add</span>(<span class="str">`score → ${next}`</span>);
+}, scope);</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="docs-section" id="concepts">
+                <h2 class="docs-h2">
+                    <div class="d-icon" style="background:rgba(251,191,36,.15)">🧠</div>Core Concepts
+                </h2>
+                <h3 class="docs-h3">Scopes &amp; Lifetimes</h3>
+                <p class="docs-p">Every resource in BoneMarrow — event listeners, timers, watchers, fetch requests — is
+                    bound to a <strong>scope</strong>. When a scope is disposed, all its resources are cleaned up
+                    automatically. Scopes are hierarchical: disposing a parent disposes all children first.</p>
+                <h3 class="docs-h3">AbortSignal integration</h3>
+                <p class="docs-p">Each scope exposes a <code>scope.signal</code> — a native <code>AbortSignal</code>.
+                    Pass it directly to <code>fetch()</code>, <code>addEventListener()</code>, and any AbortSignal-aware
+                    API without any special wrappers.</p>
+                <div class="docs-code code-block" data-js-label="signal.js" data-ts-label="signal.ts">
+                    <div class="code-block-bar">
+                        <div class="code-block-dots">
+                            <div class="dot dot-r"></div>
+                            <div class="dot dot-y"></div>
+                            <div class="dot dot-g"></div>
+                        </div>
+                        <span class="code-block-label">signal.js</span>
+                        <div class="lang-switcher">
+                            <button class="lang-btn" data-lang="js">JS</button>
+                            <button class="lang-btn" data-lang="ts">TS</button>
+                        </div>
+                    </div>
+                    <div class="code-pane" data-lang="js">
+                        <pre><span class="kw">const</span> scope = bone.<span class="fn">createScope</span>();
+
+<span class="cm">// Native fetch — aborted when scope disposes</span>
+<span class="fn">fetch</span>(<span class="str">"/api/data"</span>, { signal: scope.signal });
+
+<span class="cm">// Native addEventListener — same pattern</span>
+document.<span class="fn">addEventListener</span>(<span class="str">"keydown"</span>, handler, {
+  signal: scope.signal
+});
+
+scope.<span class="fn">dispose</span>(); <span class="cm">// → fetch aborted, listener removed</span></pre>
+                    </div>
+                    <div class="code-pane" data-lang="ts">
+                        <pre><span class="kw">import</span> { createScope, Scope } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">const</span> scope<span class="ty">: Scope</span> = <span class="fn">createScope</span>();
+
+<span class="cm">// scope.signal is typed as AbortSignal</span>
+<span class="fn">fetch</span>(<span class="str">"/api/data"</span>, { signal<span class="ty">: AbortSignal</span> = scope.signal });
+
+document.<span class="fn">addEventListener</span>(<span class="str">"keydown"</span>, handler, {
+  signal: scope.signal
+});
+
+scope.<span class="fn">dispose</span>();</pre>
+                    </div>
+                </div>
+                <h3 class="docs-h3">Change detection</h3>
+                <p class="docs-p">BoneMarrow uses <strong>strict equality</strong> (<code>===</code>) to detect changes.
+                    Calling <code>set()</code> or <code>update()</code> with the same values is a no-op — no events
+                    fire, no renders trigger.</p>
+                <div class="callout callout-tip"><span class="callout-icon">💡</span>
+                    <div class="callout-body"><strong>Best practice:</strong> Create one scope per component, page, or
+                        feature. Pass it down to models, collections, and event listeners. Dispose the scope when the
+                        feature is torn down.</div>
+                </div>
+            </div>
+
+            <div class="docs-section" id="scope">
+                <h2 class="docs-h2">
+                    <div class="d-icon" style="background:rgba(167,139,250,.15)">🔭</div>Scope System
+                </h2>
+                <div id="rootscope"></div>
+                <h3 class="docs-h3">createScope(opts?) / createRootScope(opts?)</h3>
+                <div class="type-sig">createScope(opts?: { debug?: boolean }) → Scope</div>
+                <p class="docs-p"><code>createScope()</code> creates a browser-environment scope attached to a shared
+                    global root that auto-disposes on <code>pagehide</code> and <code>beforeunload</code>.
+                    <code>createRootScope()</code> creates a standalone root for Node.js, Web Workers, or SSR.
+                </p>
+                <table class="param-table">
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-name">signal</td>
+                            <td class="p-type">AbortSignal</td>
+                            <td class="p-desc">Native signal. Aborted when the scope disposes.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">onDispose(fn)</td>
+                            <td class="p-type">(fn: () =&gt; void) → void</td>
+                            <td class="p-desc">Register cleanup callback. Runs LIFO on disposal. Calls immediately if
+                                already disposed.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">createChild()</td>
+                            <td class="p-type">() → Scope</td>
+                            <td class="p-desc">Create a child scope. Disposed when parent disposes.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">dispose()</td>
+                            <td class="p-type">() → void</td>
+                            <td class="p-desc">Dispose this scope and all children. Safe to call multiple times.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div id="isdisposed"></div>
+                <h3 class="docs-h3">isScopeDisposed(scope)</h3>
+                <div class="type-sig">isScopeDisposed(scope: Scope) → boolean</div>
+                <p class="docs-p">Returns <code>true</code> if <code>scope.signal.aborted</code> is <code>true</code>.
+                </p>
+                <div class="docs-code code-block" data-js-label="scope.js" data-ts-label="scope.ts">
+                    <div class="code-block-bar">
+                        <div class="code-block-dots">
+                            <div class="dot dot-r"></div>
+                            <div class="dot dot-y"></div>
+                            <div class="dot dot-g"></div>
+                        </div>
+                        <span class="code-block-label">scope.js</span>
+                        <div class="lang-switcher">
+                            <button class="lang-btn" data-lang="js">JS</button>
+                            <button class="lang-btn" data-lang="ts">TS</button>
+                        </div>
+                    </div>
+                    <div class="code-pane" data-lang="js">
+                        <pre><span class="cm">// Browser scope (auto page-level cleanup)</span>
+<span class="kw">const</span> app = bone.<span class="fn">createScope</span>();
+
+<span class="cm">// Child scopes for sub-features</span>
+<span class="kw">const</span> modal  = app.<span class="fn">createChild</span>();
+<span class="kw">const</span> widget = app.<span class="fn">createChild</span>();
+
+<span class="cm">// Register cleanup</span>
+modal.<span class="fn">onDispose</span>(() => {
+  console.<span class="fn">log</span>(<span class="str">"modal cleaned up"</span>);
+});
+
+<span class="cm">// Pass signal to native APIs</span>
+document.<span class="fn">addEventListener</span>(
+  <span class="str">"keydown"</span>, handler,
+  { signal: modal.signal }
+);
+
+modal.<span class="fn">dispose</span>(); <span class="cm">// app & widget still alive</span>
+app.<span class="fn">dispose</span>();   <span class="cm">// widget disposed too</span>
+
+bone.<span class="fn">isScopeDisposed</span>(app); <span class="cm">// → true</span>
+
+<span class="cm">// Node.js / SSR / Worker</span>
+<span class="kw">const</span> root = bone.<span class="fn">createRootScope</span>({ debug: <span class="kw">true</span> });</pre>
+                    </div>
+                    <div class="code-pane" data-lang="ts">
+                        <pre><span class="kw">import</span> { createScope, createRootScope, isScopeDisposed, Scope } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">const</span> app<span class="ty">: Scope</span>    = <span class="fn">createScope</span>();
+<span class="kw">const</span> modal<span class="ty">: Scope</span>  = app.<span class="fn">createChild</span>();
+<span class="kw">const</span> widget<span class="ty">: Scope</span> = app.<span class="fn">createChild</span>();
+
+modal.<span class="fn">onDispose</span>(() => {
+  console.<span class="fn">log</span>(<span class="str">"modal cleaned up"</span>);
+});
+
+<span class="cm">// scope.signal: AbortSignal — native API integration</span>
+document.<span class="fn">addEventListener</span>(
+  <span class="str">"keydown"</span>, handler,
+  { signal: modal.signal }
+);
+
+modal.<span class="fn">dispose</span>();
+app.<span class="fn">dispose</span>();
+
+<span class="fn">isScopeDisposed</span>(app); <span class="cm">// → true</span>
+
+<span class="kw">const</span> root<span class="ty">: Scope</span> = <span class="fn">createRootScope</span>({ debug: <span class="kw">true</span> });</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="docs-section" id="model">
+                <h2 class="docs-h2">
+                    <div class="d-icon" style="background:rgba(167,139,250,.15)">📦</div>Model
+                </h2>
+                <p class="docs-p">A key-value state container with change tracking, per-key watchers, and optional JSON
+                    endpoint auto-refresh.</p>
+                <div class="type-sig">new Model(initialData, scope?) → Model</div>
+                <div id="model-set"></div>
+                <h3 class="docs-h3">set / get / getAll</h3>
+                <table class="param-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Returns</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-name">set(partial)</td>
+                            <td class="p-type">boolean</td>
+                            <td class="p-desc">Merges partial into state. Emits <code>change</code> only for keys with
+                                new values. Returns <code>true</code> if any change occurred.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">get(key)</td>
+                            <td class="p-type">T[key]</td>
+                            <td class="p-desc">Returns current value for key.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">getAll()</td>
+                            <td class="p-type">T</td>
+                            <td class="p-desc">Returns a shallow copy of the entire state.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div id="model-watch"></div>
+                <h3 class="docs-h3">watch / onChange</h3>
+                <table class="param-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Returns</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-name">watch(key, fn, scope?)</td>
+                            <td class="p-type">() =&gt; void</td>
+                            <td class="p-desc">Calls <code>fn(newValue)</code> when the specific key changes. Returns an
+                                unsubscribe function.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">onChange(fn, scope?)</td>
+                            <td class="p-type">() =&gt; void</td>
+                            <td class="p-desc">Calls <code>fn(changedPartial)</code> on every <code>set()</code> that
+                                produces at least one change.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div id="model-dirty"></div>
+                <h3 class="docs-h3">isDirty / has / reset</h3>
+                <table class="param-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Returns</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-name">isDirty()</td>
+                            <td class="p-type">boolean</td>
+                            <td class="p-desc">Returns <code>true</code> if any value differs from its initial value
+                                (strict equality).</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">has(key, value)</td>
+                            <td class="p-type">boolean</td>
+                            <td class="p-desc">Returns <code>true</code> if <code>data[key] === value</code>.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">reset()</td>
+                            <td class="p-type">void</td>
+                            <td class="p-desc">Reverts all values to initial. Emits <code>change</code> if anything
+                                changed.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div id="model-fetch"></div>
+                <h3 class="docs-h3">fetch / autoRefresh</h3>
+                <div class="docs-code code-block" data-js-label="autoRefresh.js" data-ts-label="autoRefresh.ts">
+                    <div class="code-block-bar">
+                        <div class="code-block-dots">
+                            <div class="dot dot-r"></div>
+                            <div class="dot dot-y"></div>
+                            <div class="dot dot-g"></div>
+                        </div>
+                        <span class="code-block-label">autoRefresh.js</span>
+                        <div class="lang-switcher">
+                            <button class="lang-btn" data-lang="js">JS</button>
+                            <button class="lang-btn" data-lang="ts">TS</button>
+                        </div>
+                    </div>
+                    <div class="code-pane" data-lang="js">
+                        <pre><span class="kw">const</span> ticker = model.<span class="fn">autoRefresh</span>(<span class="str">"/api/user"</span>, {
+  interval:   <span class="nm">10000</span>,
+  scope,
+  immediate:  <span class="kw">true</span>,
+  backoff:    <span class="kw">true</span>,
+  maxRetries: <span class="nm">3</span>,
+  onError:    err => console.<span class="fn">warn</span>(err),
+});
+
+ticker.<span class="fn">pause</span>();
+ticker.<span class="fn">resume</span>();
+ticker.<span class="fn">stop</span>();</pre>
+                    </div>
+                    <div class="code-pane" data-lang="ts">
+                        <pre><span class="kw">import</span> { RefreshHandle } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">const</span> ticker<span class="ty">: RefreshHandle</span> = model.<span class="fn">autoRefresh</span>(<span class="str">"/api/user"</span>, {
+  interval<span class="ty">:</span>   <span class="nm">10000</span>,
+  scope,
+  immediate<span class="ty">:</span>  <span class="kw">true</span>,
+  backoff<span class="ty">:</span>    <span class="kw">true</span>,
+  maxRetries<span class="ty">:</span> <span class="nm">3</span>,
+  onError<span class="ty">:</span>    (err<span class="ty">: unknown</span>) => console.<span class="fn">warn</span>(err),
+});
+
+ticker.<span class="fn">pause</span>();
+ticker.<span class="fn">resume</span>();
+ticker.<span class="fn">stop</span>();</pre>
+                    </div>
+                </div>
+                <div class="docs-code code-block" data-js-label="model.js" data-ts-label="model.ts">
+                    <div class="code-block-bar">
+                        <div class="code-block-dots">
+                            <div class="dot dot-r"></div>
+                            <div class="dot dot-y"></div>
+                            <div class="dot dot-g"></div>
+                        </div>
+                        <span class="code-block-label">model.js</span>
+                        <div class="lang-switcher">
+                            <button class="lang-btn" data-lang="js">JS</button>
+                            <button class="lang-btn" data-lang="ts">TS</button>
+                        </div>
+                    </div>
+                    <div class="code-pane" data-lang="js">
+                        <pre><span class="kw">const</span> scope = bone.<span class="fn">createScope</span>();
+
+<span class="cm">// Create with initial state</span>
+<span class="kw">const</span> user = <span class="kw">new</span> bone.<span class="fn">Model</span>({
+  name:   <span class="str">"Ada"</span>,
+  score:  <span class="nm">0</span>,
+  active: <span class="kw">true</span>,
+}, scope);
+
+<span class="cm">// Watch a specific key</span>
+user.<span class="fn">watch</span>(<span class="str">"score"</span>, score => {
+  bone.<span class="fn">el</span>(<span class="str">"#score"</span>).<span class="fn">text</span>(<span class="str">`Score: ${score}`</span>);
+}, scope);
+
+<span class="cm">// Listen to all changes</span>
+user.<span class="fn">onChange</span>(changed => {
+  console.<span class="fn">log</span>(<span class="str">"changed:"</span>, changed);
+}, scope);
+
+<span class="cm">// Update — only changed keys emit</span>
+user.<span class="fn">set</span>({ score: <span class="nm">42</span> }); <span class="cm">// → fires "score" watcher</span>
+user.<span class="fn">set</span>({ score: <span class="nm">42</span> }); <span class="cm">// → no-op, same value</span>
+
+<span class="cm">// Dirty tracking</span>
+user.<span class="fn">isDirty</span>(); <span class="cm">// → true (score changed)</span>
+user.<span class="fn">reset</span>();   <span class="cm">// → score back to 0</span>
+
+<span class="cm">// Auto-poll an API</span>
+user.<span class="fn">autoRefresh</span>(<span class="str">"/api/user"</span>, {
+  interval:   <span class="nm">10000</span>,
+  scope,
+  backoff:    <span class="kw">true</span>,
+  maxRetries: <span class="nm">3</span>,
+});</pre>
+                    </div>
+                    <div class="code-pane" data-lang="ts">
+                        <pre><span class="kw">import</span> { createScope, Model, el } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">interface</span> <span class="ty">UserState</span> {
+  name<span class="ty">:</span>   <span class="ty">string</span>;
+  score<span class="ty">:</span>  <span class="ty">number</span>;
+  active<span class="ty">:</span> <span class="ty">boolean</span>;
+}
+
+<span class="kw">const</span> scope = <span class="fn">createScope</span>();
+<span class="kw">const</span> user = <span class="kw">new</span> <span class="fn">Model</span><span class="gi">&lt;</span><span class="ty">UserState</span><span class="gi">&gt;</span>({
+  name: <span class="str">"Ada"</span>, score: <span class="nm">0</span>, active: <span class="kw">true</span>,
+}, scope);
+
+<span class="cm">// score is inferred as number</span>
+user.<span class="fn">watch</span>(<span class="str">"score"</span>, (score) => {
+  <span class="fn">el</span>(<span class="str">"#score"</span>).<span class="fn">text</span>(<span class="str">`Score: ${score}`</span>);
+}, scope);
+
+user.<span class="fn">onChange</span>((changed<span class="ty">: Partial&lt;UserState&gt;</span>) => {
+  console.<span class="fn">log</span>(<span class="str">"changed:"</span>, changed);
+}, scope);
+
+user.<span class="fn">set</span>({ score: <span class="nm">42</span> });
+user.<span class="fn">isDirty</span>(); <span class="cm">// → true</span>
+user.<span class="fn">reset</span>();
+
+user.<span class="fn">autoRefresh</span>(<span class="str">"/api/user"</span>, {
+  interval: <span class="nm">10000</span>, scope, backoff: <span class="kw">true</span>, maxRetries: <span class="nm">3</span>,
+});</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="docs-section" id="collection">
+                <h2 class="docs-h2">
+                    <div class="d-icon" style="background:rgba(56,189,248,.15)">🗂</div>Collection
+                </h2>
+                <p class="docs-p">A reactive array that emits granular events on mutation. All standard array read
+                    methods are non-mutating.</p>
+                <div class="type-sig">new Collection(initialItems?, scope?) → Collection</div>
+                <div id="col-mutate"></div>
+                <h3 class="docs-h3">add / remove / removeAt / update</h3>
+                <table class="param-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Returns</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-name">add(...items)</td>
+                            <td class="p-type">void</td>
+                            <td class="p-desc">Pushes items to end. Emits <code>add</code>.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">remove(predicate)</td>
+                            <td class="p-type">T[]</td>
+                            <td class="p-desc">Removes matching items. Emits <code>remove</code>.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">removeAt(index)</td>
+                            <td class="p-type">T | undefined</td>
+                            <td class="p-desc">Removes item at index. Emits <code>remove</code>.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">update(predicate, patch)</td>
+                            <td class="p-type">T[]</td>
+                            <td class="p-desc">Shallow-merges patch into matching items. Only emits <code>update</code>
+                                if values changed.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div id="col-order"></div>
+                <h3 class="docs-h3">sort / move / reset / clear</h3>
+                <table class="param-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Returns</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-name">sort(compareFn)</td>
+                            <td class="p-type">void</td>
+                            <td class="p-desc">Sorts in-place. Emits <code>sort</code>.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">move(from, to)</td>
+                            <td class="p-type">void</td>
+                            <td class="p-desc">Moves item from index to index. Emits <code>sort</code>.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">reset(items)</td>
+                            <td class="p-type">void</td>
+                            <td class="p-desc">Replaces all items. Emits <code>reset</code>.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">clear()</td>
+                            <td class="p-type">void</td>
+                            <td class="p-desc">Empties the collection. Emits <code>reset</code> with <code>[]</code>.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div id="col-events"></div>
+                <h3 class="docs-h3">Event subscriptions</h3>
+                <table class="param-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Payload</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-name">onAdd(fn, scope?)</td>
+                            <td class="p-type">T[]</td>
+                            <td class="p-desc">Fires with added items.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">onRemove(fn, scope?)</td>
+                            <td class="p-type">T[]</td>
+                            <td class="p-desc">Fires with removed items.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">onUpdate(fn, scope?)</td>
+                            <td class="p-type">T[]</td>
+                            <td class="p-desc">Fires with updated items.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">onReset(fn, scope?)</td>
+                            <td class="p-type">T[]</td>
+                            <td class="p-desc">Fires with new full array.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">onChange(fn, scope?)</td>
+                            <td class="p-type">void</td>
+                            <td class="p-desc">Fires on any mutation.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="docs-code code-block" data-js-label="collection.js" data-ts-label="collection.ts">
+                    <div class="code-block-bar">
+                        <div class="code-block-dots">
+                            <div class="dot dot-r"></div>
+                            <div class="dot dot-y"></div>
+                            <div class="dot dot-g"></div>
+                        </div>
+                        <span class="code-block-label">collection.js</span>
+                        <div class="lang-switcher">
+                            <button class="lang-btn" data-lang="js">JS</button>
+                            <button class="lang-btn" data-lang="ts">TS</button>
+                        </div>
+                    </div>
+                    <div class="code-pane" data-lang="js">
+                        <pre><span class="kw">const</span> scope = bone.<span class="fn">createScope</span>();
+
+<span class="kw">const</span> tasks = <span class="kw">new</span> bone.<span class="fn">Collection</span>([
+  { id: <span class="nm">1</span>, title: <span class="str">"Design"</span>, done: <span class="kw">false</span> },
+  { id: <span class="nm">2</span>, title: <span class="str">"Build"</span>,  done: <span class="kw">false</span> },
+], scope);
+
+<span class="cm">// Re-render whenever anything changes</span>
+tasks.<span class="fn">onChange</span>(() => renderList(), scope);
+
+<span class="cm">// Add items</span>
+tasks.<span class="fn">add</span>({ id: <span class="nm">3</span>, title: <span class="str">"Ship"</span>, done: <span class="kw">false</span> });
+
+<span class="cm">// Mark a task complete</span>
+tasks.<span class="fn">update</span>(
+  t => t.id === <span class="nm">1</span>,
+  { done: <span class="kw">true</span> }
+);
+
+<span class="cm">// Remove done tasks</span>
+tasks.<span class="fn">remove</span>(t => t.done);
+
+<span class="cm">// Sort alphabetically</span>
+tasks.<span class="fn">sort</span>((a, b) =>
+  a.title.<span class="fn">localeCompare</span>(b.title)
+);
+
+<span class="cm">// Granular event subscriptions</span>
+tasks.<span class="fn">onAdd</span>(items => {
+  console.<span class="fn">log</span>(<span class="str">"added:"</span>, items);
+}, scope);
+
+<span class="cm">// Read without mutating</span>
+<span class="kw">const</span> pending = tasks.<span class="fn">filter</span>(t => !t.done);
+console.<span class="fn">log</span>(tasks.length); <span class="cm">// → 2</span></pre>
+                    </div>
+                    <div class="code-pane" data-lang="ts">
+                        <pre><span class="kw">import</span> { createScope, Collection } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">interface</span> <span class="ty">Task</span> { id<span class="ty">: number</span>; title<span class="ty">: string</span>; done<span class="ty">: boolean</span>; }
+
+<span class="kw">const</span> scope = <span class="fn">createScope</span>();
+<span class="kw">const</span> tasks = <span class="kw">new</span> <span class="fn">Collection</span><span class="gi">&lt;</span><span class="ty">Task</span><span class="gi">&gt;</span>([
+  { id: <span class="nm">1</span>, title: <span class="str">"Design"</span>, done: <span class="kw">false</span> },
+  { id: <span class="nm">2</span>, title: <span class="str">"Build"</span>,  done: <span class="kw">false</span> },
+], scope);
+
+tasks.<span class="fn">onChange</span>(() => renderList(), scope);
+
+tasks.<span class="fn">add</span>({ id: <span class="nm">3</span>, title: <span class="str">"Ship"</span>, done: <span class="kw">false</span> });
+
+tasks.<span class="fn">update</span>(
+  (t<span class="ty">: Task</span>) => t.id === <span class="nm">1</span>,
+  { done: <span class="kw">true</span> }
+);
+
+tasks.<span class="fn">remove</span>((t<span class="ty">: Task</span>) => t.done);
+
+tasks.<span class="fn">sort</span>((a<span class="ty">: Task</span>, b<span class="ty">: Task</span>) =>
+  a.title.<span class="fn">localeCompare</span>(b.title)
+);
+
+tasks.<span class="fn">onAdd</span>((items<span class="ty">: Task[]</span>) => {
+  console.<span class="fn">log</span>(<span class="str">"added:"</span>, items);
+}, scope);
+
+<span class="kw">const</span> pending<span class="ty">: Task[]</span> = tasks.<span class="fn">filter</span>(t => !t.done);
+console.<span class="fn">log</span>(tasks.length);</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="docs-section" id="emitter">
+                <h2 class="docs-h2">
+                    <div class="d-icon" style="background:rgba(244,114,182,.15)">📡</div>Emitter / TypedEmitter
+                </h2>
+                <p class="docs-p">A full-featured event bus. <code>TypedEmitter&lt;Events&gt;</code> adds compile-time
+                    type-safety for event names and payloads.</p>
+                <div class="type-sig">new Emitter(opts?) → Emitter</div>
+                <table class="param-table">
+                    <thead>
+                        <tr>
+                            <th>Option</th>
+                            <th>Type</th>
+                            <th>Default</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-name">debug</td>
+                            <td class="p-type">boolean</td>
+                            <td class="p-default">false</td>
+                            <td class="p-desc">Logs listener add/remove and emissions to console.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">maxListeners</td>
+                            <td class="p-type">number</td>
+                            <td class="p-default">50</td>
+                            <td class="p-desc">Warns when any event exceeds this many listeners.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div id="emitter-on"></div>
+                <h3 class="docs-h3">on / once / off</h3>
+                <table class="param-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Returns</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-name">on(event, fn, scope?)</td>
+                            <td class="p-type">() =&gt; void</td>
+                            <td class="p-desc">Subscribe. Returns unsubscribe. Scope auto-removes on disposal.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">once(event, fn, scope?)</td>
+                            <td class="p-type">() =&gt; void</td>
+                            <td class="p-desc">Subscribe once — auto-removes after first emission.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">off(event)</td>
+                            <td class="p-type">void</td>
+                            <td class="p-desc">Removes all listeners for the event.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div id="emitter-emit"></div>
+                <h3 class="docs-h3">emit / emitAsync</h3>
+                <table class="param-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Returns</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-name">emit(event, ...args)</td>
+                            <td class="p-type">void</td>
+                            <td class="p-desc">Calls all handlers synchronously. Errors caught individually.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">emitAsync(event, ...args)</td>
+                            <td class="p-type">Promise&lt;void&gt;</td>
+                            <td class="p-desc">Awaits all handlers via <code>Promise.allSettled</code>. Throws
+                                <code>AggregateError</code> on failure.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div id="emitter-async"></div>
+                <h3 class="docs-h3">onceAsync</h3>
+                <div class="type-sig">onceAsync(event, scope?) → Promise&lt;args[]&gt;</div>
+                <p class="docs-p">Returns a Promise resolving with the event arguments array on the next emission.</p>
+                <div class="docs-code code-block" data-js-label="emitter.js" data-ts-label="emitter.ts">
+                    <div class="code-block-bar">
+                        <div class="code-block-dots">
+                            <div class="dot dot-r"></div>
+                            <div class="dot dot-y"></div>
+                            <div class="dot dot-g"></div>
+                        </div>
+                        <span class="code-block-label">emitter.js</span>
+                        <div class="lang-switcher">
+                            <button class="lang-btn" data-lang="js">JS</button>
+                            <button class="lang-btn" data-lang="ts">TS</button>
+                        </div>
+                    </div>
+                    <div class="code-pane" data-lang="js">
+                        <pre><span class="kw">const</span> bus = <span class="kw">new</span> bone.<span class="fn">Emitter</span>({
+  debug:        <span class="kw">true</span>,
+  maxListeners: <span class="nm">20</span>,
+});
+
+<span class="cm">// Standard subscribe</span>
+bus.<span class="fn">on</span>(<span class="str">"login"</span>, ({ user }) => {
+  console.<span class="fn">log</span>(<span class="str">"logged in:"</span>, user);
+}, scope);
+
+<span class="cm">// One-time listener</span>
+bus.<span class="fn">once</span>(<span class="str">"ready"</span>, () => init());
+
+<span class="cm">// Await next emission</span>
+<span class="kw">async function</span> <span class="fn">waitForData</span>() {
+  <span class="kw">const</span> [payload] = <span class="kw">await</span> bus.<span class="fn">onceAsync</span>(<span class="str">"data"</span>);
+  console.<span class="fn">log</span>(payload);
+}
+
+<span class="cm">// Synchronous emit</span>
+bus.<span class="fn">emit</span>(<span class="str">"login"</span>, { user: <span class="str">"Ada"</span> });
+
+<span class="cm">// Async emit — waits all handlers</span>
+<span class="kw">await</span> bus.<span class="fn">emitAsync</span>(<span class="str">"save"</span>, { id: <span class="nm">42</span> });
+
+bus.<span class="fn">listenerCount</span>(<span class="str">"login"</span>); <span class="cm">// → 1</span>
+bus.<span class="fn">eventNames</span>();          <span class="cm">// → ["login", "ready"]</span></pre>
+                    </div>
+                    <div class="code-pane" data-lang="ts">
+                        <pre><span class="kw">import</span> { TypedEmitter } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">type</span> <span class="ty">Events</span> = {
+  login<span class="ty">:</span> [{ user<span class="ty">: string</span> }];
+  ready<span class="ty">:</span> [];
+  data<span class="ty">:</span>  [<span class="ty">unknown</span>];
+  save<span class="ty">:</span>  [{ id<span class="ty">: number</span> }];
+};
+
+<span class="kw">const</span> bus = <span class="kw">new</span> <span class="fn">TypedEmitter</span><span class="gi">&lt;</span><span class="ty">Events</span><span class="gi">&gt;</span>({
+  debug: <span class="kw">true</span>, maxListeners: <span class="nm">20</span>,
+});
+
+<span class="cm">// user is string — type-checked ✓</span>
+bus.<span class="fn">on</span>(<span class="str">"login"</span>, ({ user }) => {
+  console.<span class="fn">log</span>(<span class="str">"logged in:"</span>, user);
+}, scope);
+
+bus.<span class="fn">once</span>(<span class="str">"ready"</span>, () => init());
+
+<span class="kw">async function</span> <span class="fn">waitForData</span>() {
+  <span class="kw">const</span> [payload] = <span class="kw">await</span> bus.<span class="fn">onceAsync</span>(<span class="str">"data"</span>);
+  console.<span class="fn">log</span>(payload);
+}
+
+bus.<span class="fn">emit</span>(<span class="str">"login"</span>, { user: <span class="str">"Ada"</span> });
+<span class="kw">await</span> bus.<span class="fn">emitAsync</span>(<span class="str">"save"</span>, { id: <span class="nm">42</span> });
+bus.<span class="fn">listenerCount</span>(<span class="str">"login"</span>);
+bus.<span class="fn">eventNames</span>();</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="docs-section" id="el">
+                <h2 class="docs-h2">
+                    <div class="d-icon" style="background:rgba(74,222,128,.15)">🎯</div>el() &amp; Elements
+                </h2>
+                <p class="docs-p"><code>el()</code> wraps one or more DOM elements in a chainable <code>Elements</code>
+                    instance. All methods apply to every matched element. Getters operate on the first matched element.
+                </p>
+                <div class="type-sig">el(input: string | Element | NodeList | Element[]) → Elements</div>
+                <div id="el-content"></div>
+                <h3 class="docs-h3">Content, classes &amp; attributes</h3>
+                <table class="param-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-name">text(str?) / html(str?)</td>
+                            <td class="p-desc">Get or set <code>textContent</code> / <code>innerHTML</code>.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">val(str?)</td>
+                            <td class="p-desc">Get or set value for input, textarea, select.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">addClass / removeClass / toggleClass / hasClass</td>
+                            <td class="p-desc">Space-separated class names. <code>toggleClass(name, force?)</code>
+                                accepts optional boolean.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">css(prop, val?) / css(object)</td>
+                            <td class="p-desc">Get or set CSS custom properties. Accepts object map.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">attr(key, val?) / removeAttr(key)</td>
+                            <td class="p-desc">Get or set HTML attributes. <code>data(key, val?)</code> works with
+                                <code>dataset</code>.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div id="el-events"></div>
+                <h3 class="docs-h3">Events</h3>
+                <table class="param-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-name">on(event, fn, scope?)</td>
+                            <td class="p-desc">Add listener to all matched elements. Scope auto-removes on disposal.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">once(event, fn)</td>
+                            <td class="p-desc">Add a one-time listener.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">trigger(event, detail?, opts?)</td>
+                            <td class="p-desc">Dispatch a CustomEvent. <code>opts</code> accepts <code>bubbles</code>
+                                and <code>cancelable</code>.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div id="el-traverse"></div>
+                <h3 class="docs-h3">Traversal &amp; mutation</h3>
+                <p class="docs-p">Traversal: <code>find</code>, <code>filter</code>, <code>not</code>,
+                    <code>parent</code>, <code>siblings</code>, <code>children</code>, <code>closest</code> — all return
+                    new <code>Elements</code> instances. Mutation: <code>append</code>, <code>prepend</code>,
+                    <code>remove</code>, <code>empty</code>, <code>clone</code>, <code>show</code>, <code>hide</code>,
+                    <code>toggle</code>, <code>focus</code>.
+                </p>
+                <div id="el-mutate"></div>
+                <div class="docs-code code-block" data-js-label="el.js" data-ts-label="el.ts">
+                    <div class="code-block-bar">
+                        <div class="code-block-dots">
+                            <div class="dot dot-r"></div>
+                            <div class="dot dot-y"></div>
+                            <div class="dot dot-g"></div>
+                        </div>
+                        <span class="code-block-label">el.js</span>
+                        <div class="lang-switcher">
+                            <button class="lang-btn" data-lang="js">JS</button>
+                            <button class="lang-btn" data-lang="ts">TS</button>
+                        </div>
+                    </div>
+                    <div class="code-pane" data-lang="js">
+                        <pre><span class="cm">// Select & chain</span>
+bone.<span class="fn">el</span>(<span class="str">"#btn"</span>)
+  .<span class="fn">addClass</span>(<span class="str">"active"</span>)
+  .<span class="fn">text</span>(<span class="str">"Clicked!"</span>)
+  .<span class="fn">css</span>(<span class="str">"--color"</span>, <span class="str">"red"</span>);
+
+<span class="cm">// Scope-bound event listener</span>
+bone.<span class="fn">el</span>(<span class="str">"#btn"</span>).<span class="fn">on</span>(<span class="str">"click"</span>, e => {
+  <span class="cm">// auto-removed on scope.dispose()</span>
+}, scope);
+
+<span class="cm">// Traverse the DOM</span>
+bone.<span class="fn">el</span>(<span class="str">".list"</span>)
+  .<span class="fn">find</span>(<span class="str">"li"</span>)
+  .<span class="fn">filter</span>(<span class="str">".active"</span>)
+  .<span class="fn">each</span>(el => {
+    bone.<span class="fn">el</span>(el).<span class="fn">addClass</span>(<span class="str">"highlight"</span>);
+  });
+
+<span class="cm">// Create from HTML string</span>
+<span class="kw">const</span> card = bone.<span class="fn">elFromHtml</span>(
+  <span class="str">`&lt;div class="card"&gt;Hello&lt;/div&gt;`</span>
+);
+bone.<span class="fn">el</span>(<span class="str">"#container"</span>).<span class="fn">append</span>(card);
+
+<span class="cm">// Dispatch custom events</span>
+bone.<span class="fn">el</span>(<span class="str">"#form"</span>).<span class="fn">trigger</span>(<span class="str">"submit"</span>, {
+  data: { name: <span class="str">"Ada"</span> }
+});</pre>
+                    </div>
+                    <div class="code-pane" data-lang="ts">
+                        <pre><span class="kw">import</span> { el, elFromHtml, Elements } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="cm">// el() returns a typed Elements instance</span>
+<span class="kw">const</span> btn<span class="ty">: Elements</span> = <span class="fn">el</span>(<span class="str">"#btn"</span>);
+
+btn
+  .<span class="fn">addClass</span>(<span class="str">"active"</span>)
+  .<span class="fn">text</span>(<span class="str">"Clicked!"</span>)
+  .<span class="fn">css</span>(<span class="str">"--color"</span>, <span class="str">"red"</span>);
+
+btn.<span class="fn">on</span>(<span class="str">"click"</span>, (e<span class="ty">: Event</span>) => {}, scope);
+
+<span class="fn">el</span>(<span class="str">".list"</span>)
+  .<span class="fn">find</span>(<span class="str">"li"</span>)
+  .<span class="fn">filter</span>(<span class="str">".active"</span>)
+  .<span class="fn">each</span>((node<span class="ty">: Element</span>) => {
+    <span class="fn">el</span>(node).<span class="fn">addClass</span>(<span class="str">"highlight"</span>);
+  });
+
+<span class="kw">const</span> card<span class="ty">: Elements</span> = <span class="fn">elFromHtml</span>(
+  <span class="str">`&lt;div class="card"&gt;Hello&lt;/div&gt;`</span>
+);
+<span class="fn">el</span>(<span class="str">"#container"</span>).<span class="fn">append</span>(card);
+
+<span class="fn">el</span>(<span class="str">"#form"</span>).<span class="fn">trigger</span>(<span class="str">"submit"</span>, {
+  data: { name: <span class="str">"Ada"</span> }
+});</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="docs-section" id="view">
+                <h2 class="docs-h2">
+                    <div class="d-icon" style="background:rgba(251,191,36,.15)">🧱</div>View
+                </h2>
+                <p class="docs-p">A base class for component-style DOM views. Extend it to encapsulate a root element,
+                    its model, and its child views — all scope-managed.</p>
+                <div class="type-sig">class MyView extends bone.View</div>
+                <div id="view-lifecycle"></div>
+                <h3 class="docs-h3">Lifecycle &amp; query</h3>
+                <table class="param-table">
+                    <thead>
+                        <tr>
+                            <th>Method / Property</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-name">constructor(root, model, opts?)</td>
+                            <td class="p-desc"><code>root</code>: DOM Element. <code>autoDestroy</code> (default true):
+                                MutationObserver-based auto-dispose when root removed.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">init()</td>
+                            <td class="p-desc">Override to set up listeners and render. Called once in constructor after
+                                scope is ready.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">render()</td>
+                            <td class="p-desc">Optional render hook. Call manually or from watchers.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">$(selector)</td>
+                            <td class="p-desc">Query within root. Returns <code>Elements</code>.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">$root()</td>
+                            <td class="p-desc">Root element wrapped in <code>Elements</code>.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">on / onDocument / onWindow</td>
+                            <td class="p-desc">Scope-bound event listeners — auto-removed on dispose.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">emit(event, detail?)</td>
+                            <td class="p-desc">Dispatch a bubbling CustomEvent from root.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div id="view-children"></div>
+                <h3 class="docs-h3">Child views</h3>
+                <table class="param-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-name">createChild(ViewClass, el, model?)</td>
+                            <td class="p-desc">Instantiate a child view with scope derived from parent. Auto-destroyed
+                                when parent is destroyed.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">createChildren(ViewClass, selector, modelFn?)</td>
+                            <td class="p-desc">Create a child view for each element matching selector.
+                                <code>modelFn(el, index)</code> provides per-element models.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="docs-code code-block" data-js-label="view.js" data-ts-label="view.ts">
+                    <div class="code-block-bar">
+                        <div class="code-block-dots">
+                            <div class="dot dot-r"></div>
+                            <div class="dot dot-y"></div>
+                            <div class="dot dot-g"></div>
+                        </div>
+                        <span class="code-block-label">view.js</span>
+                        <div class="lang-switcher">
+                            <button class="lang-btn" data-lang="js">JS</button>
+                            <button class="lang-btn" data-lang="ts">TS</button>
+                        </div>
+                    </div>
+                    <div class="code-pane" data-lang="js">
+                        <pre><span class="kw">class</span> <span class="fn">CounterView</span> <span class="kw">extends</span> bone.View {
+
+  <span class="fn">init</span>() {
+    this.model.<span class="fn">watch</span>(<span class="str">"count"</span>, v => {
+      this.<span class="fn">$</span>(<span class="str">".count"</span>).<span class="fn">text</span>(v);
+    }, this.scope);
+
+    this.<span class="fn">on</span>(<span class="str">"click"</span>, () => {
+      this.model.<span class="fn">set</span>({
+        count: this.model.<span class="fn">get</span>(<span class="str">"count"</span>) + <span class="nm">1</span>
+      });
+    });
+  }
+
+  <span class="fn">render</span>() {
+    <span class="kw">const</span> { count } = this.model.<span class="fn">getAll</span>();
+    this.<span class="fn">$root</span>().<span class="fn">html</span>(
+      <span class="str">`&lt;span class="count"&gt;${count}&lt;/span&gt;`</span>
+    );
+  }
+}
+
+<span class="cm">// Mount with createView helper</span>
+<span class="kw">const</span> model = <span class="kw">new</span> bone.<span class="fn">Model</span>({ count: <span class="nm">0</span> });
+bone.<span class="fn">createView</span>(CounterView, <span class="str">"#counter"</span>, model);
+
+<span class="cm">// Create child views</span>
+<span class="kw">class</span> <span class="fn">AppView</span> <span class="kw">extends</span> bone.View {
+  <span class="fn">init</span>() {
+    this.<span class="fn">createChildren</span>(CounterView, <span class="str">".counter"</span>);
+  }
+}</pre>
+                    </div>
+                    <div class="code-pane" data-lang="ts">
+                        <pre><span class="kw">import</span> { View, Model, createView } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">interface</span> <span class="ty">CounterState</span> { count<span class="ty">: number</span>; }
+
+<span class="kw">class</span> <span class="fn">CounterView</span> <span class="kw">extends</span> <span class="fn">View</span><span class="gi">&lt;</span><span class="ty">Model&lt;CounterState&gt;</span><span class="gi">&gt;</span> {
+
+  <span class="fn">init</span>()<span class="ty">: void</span> {
+    this.model.<span class="fn">watch</span>(<span class="str">"count"</span>, (v) => {
+      this.<span class="fn">$</span>(<span class="str">".count"</span>).<span class="fn">text</span>(String(v));
+    }, this.scope);
+
+    this.<span class="fn">on</span>(<span class="str">"click"</span>, () => {
+      this.model.<span class="fn">set</span>({
+        count: this.model.<span class="fn">get</span>(<span class="str">"count"</span>) + <span class="nm">1</span>
+      });
+    });
+  }
+
+  <span class="fn">render</span>()<span class="ty">: void</span> {
+    <span class="kw">const</span> { count } = this.model.<span class="fn">getAll</span>();
+    this.<span class="fn">$root</span>().<span class="fn">html</span>(
+      <span class="str">`&lt;span class="count"&gt;${count}&lt;/span&gt;`</span>
+    );
+  }
+}
+
+<span class="kw">const</span> model = <span class="kw">new</span> <span class="fn">Model</span><span class="gi">&lt;</span><span class="ty">CounterState</span><span class="gi">&gt;</span>({ count: <span class="nm">0</span> });
+<span class="fn">createView</span>(CounterView, <span class="str">"#counter"</span>, model);</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="docs-section" id="fetchjson">
+                <h2 class="docs-h2">
+                    <div class="d-icon" style="background:rgba(56,189,248,.15)">🌐</div>fetchJson
+                </h2>
+                <p class="docs-p">Scope-aware JSON fetcher with timeout, retries, exponential backoff, and in-flight
+                    request deduplication.</p>
+                <div class="type-sig">fetchJson(url, opts?) → Promise&lt;T&gt;</div>
+                <table class="param-table">
+                    <thead>
+                        <tr>
+                            <th>Option</th>
+                            <th>Type</th>
+                            <th>Default</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-name">scope</td>
+                            <td class="p-type">Scope</td>
+                            <td class="p-default">—</td>
+                            <td class="p-desc">Aborts the request if scope disposes.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">timeout</td>
+                            <td class="p-type">number</td>
+                            <td class="p-default">—</td>
+                            <td class="p-desc">Milliseconds before aborting. Applied per attempt.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">retryOnFailure</td>
+                            <td class="p-type">number</td>
+                            <td class="p-default">0</td>
+                            <td class="p-desc">Additional attempts on non-abort errors.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">retryDelay</td>
+                            <td class="p-type">number</td>
+                            <td class="p-default">0</td>
+                            <td class="p-desc">Milliseconds between retry attempts.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">dedupe</td>
+                            <td class="p-type">boolean</td>
+                            <td class="p-default">false</td>
+                            <td class="p-desc">Same Promise for identical concurrent calls within the same scope.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">init</td>
+                            <td class="p-type">RequestInit</td>
+                            <td class="p-default">—</td>
+                            <td class="p-desc">Passed to native <code>fetch()</code>.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">parse</td>
+                            <td class="p-type">(data: any) =&gt; T</td>
+                            <td class="p-default">—</td>
+                            <td class="p-desc">Optional transform applied to parsed JSON before resolving.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="docs-code code-block" data-js-label="fetchJson.js" data-ts-label="fetchJson.ts">
+                    <div class="code-block-bar">
+                        <div class="code-block-dots">
+                            <div class="dot dot-r"></div>
+                            <div class="dot dot-y"></div>
+                            <div class="dot dot-g"></div>
+                        </div>
+                        <span class="code-block-label">fetchJson.js</span>
+                        <div class="lang-switcher">
+                            <button class="lang-btn" data-lang="js">JS</button>
+                            <button class="lang-btn" data-lang="ts">TS</button>
+                        </div>
+                    </div>
+                    <div class="code-pane" data-lang="js">
+                        <pre><span class="cm">// Simple fetch with scope</span>
+<span class="kw">const</span> user = <span class="kw">await</span> bone.<span class="fn">fetchJson</span>(
+  <span class="str">"/api/user/1"</span>,
+  { scope }
+);
+
+<span class="cm">// With timeout & retries</span>
+<span class="kw">const</span> data = <span class="kw">await</span> bone.<span class="fn">fetchJson</span>(
+  <span class="str">"/api/data"</span>,
+  {
+    scope,
+    timeout:        <span class="nm">5000</span>,
+    retryOnFailure: <span class="nm">3</span>,
+    retryDelay:     <span class="nm">1000</span>,
+  }
+);
+
+<span class="cm">// Deduplicated — same Promise returned</span>
+bone.<span class="fn">fetchJson</span>(<span class="str">"/api/config"</span>, { scope, dedupe: <span class="kw">true</span> });
+bone.<span class="fn">fetchJson</span>(<span class="str">"/api/config"</span>, { scope, dedupe: <span class="kw">true</span> });
+<span class="cm">// → only ONE network request made</span>
+
+<span class="cm">// POST with custom init</span>
+<span class="kw">const</span> result = <span class="kw">await</span> bone.<span class="fn">fetchJson</span>(
+  <span class="str">"/api/save"</span>,
+  {
+    scope,
+    init: {
+      method:  <span class="str">"POST"</span>,
+      headers: { <span class="str">"Content-Type"</span>: <span class="str">"application/json"</span> },
+      body:    <span class="fn">JSON.stringify</span>({ name: <span class="str">"Ada"</span> }),
+    },
+    parse: res => res.data,
+  }
+);</pre>
+                    </div>
+                    <div class="code-pane" data-lang="ts">
+                        <pre><span class="kw">import</span> { fetchJson } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">interface</span> <span class="ty">User</span> { id<span class="ty">: number</span>; name<span class="ty">: string</span>; }
+
+<span class="kw">const</span> user = <span class="kw">await</span> <span class="fn">fetchJson</span><span class="gi">&lt;</span><span class="ty">User</span><span class="gi">&gt;</span>(
+  <span class="str">"/api/user/1"</span>,
+  { scope }
+);
+<span class="cm">// user.name is string ✓</span>
+
+<span class="kw">const</span> data = <span class="kw">await</span> <span class="fn">fetchJson</span><span class="gi">&lt;</span><span class="ty">User[]</span><span class="gi">&gt;</span>(
+  <span class="str">"/api/data"</span>,
+  {
+    scope,
+    timeout<span class="ty">:</span>        <span class="nm">5000</span>,
+    retryOnFailure<span class="ty">:</span> <span class="nm">3</span>,
+    retryDelay<span class="ty">:</span>     <span class="nm">1000</span>,
+  }
+);
+
+<span class="cm">// Deduplicated within same scope</span>
+<span class="fn">fetchJson</span>(<span class="str">"/api/config"</span>, { scope, dedupe: <span class="kw">true</span> });
+<span class="fn">fetchJson</span>(<span class="str">"/api/config"</span>, { scope, dedupe: <span class="kw">true</span> });
+
+<span class="kw">const</span> result = <span class="kw">await</span> <span class="fn">fetchJson</span><span class="gi">&lt;</span><span class="ty">User</span><span class="gi">&gt;</span>(
+  <span class="str">"/api/save"</span>,
+  {
+    scope,
+    init: { method: <span class="str">"POST"</span>, body: <span class="fn">JSON.stringify</span>({ name: <span class="str">"Ada"</span> }) },
+    parse<span class="ty">: (res: { data: User })</span> => res.data,
+  }
+);</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="docs-section" id="refresh">
+                <h2 class="docs-h2">
+                    <div class="d-icon" style="background:rgba(249,115,22,.15)">⏱</div>createRefresh
+                </h2>
+                <p class="docs-p">An interval-based async poller. Waits for each tick to complete before scheduling the
+                    next, skips overlapping ticks, and supports pause/resume and backoff.</p>
+                <div class="type-sig">createRefresh(fn, opts) → RefreshHandle</div>
+                <table class="param-table">
+                    <thead>
+                        <tr>
+                            <th>Option</th>
+                            <th>Type</th>
+                            <th>Default</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-name">interval <span class="p-req">*</span></td>
+                            <td class="p-type">number</td>
+                            <td class="p-default">—</td>
+                            <td class="p-desc">Milliseconds between end of one tick and start of next.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">scope <span class="p-req">*</span></td>
+                            <td class="p-type">Scope</td>
+                            <td class="p-default">—</td>
+                            <td class="p-desc">Poller stops when scope disposes.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">immediate</td>
+                            <td class="p-type">boolean</td>
+                            <td class="p-default">true</td>
+                            <td class="p-desc">Run first tick immediately.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">startPaused</td>
+                            <td class="p-type">boolean</td>
+                            <td class="p-default">false</td>
+                            <td class="p-desc">Create paused — call <code>resume()</code> to start.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">backoff</td>
+                            <td class="p-type">boolean</td>
+                            <td class="p-default">false</td>
+                            <td class="p-desc">Double interval after each error (capped 10×). Resets on success.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-name">maxRetries</td>
+                            <td class="p-type">number</td>
+                            <td class="p-default">0</td>
+                            <td class="p-desc">Stop after this many consecutive errors. 0 = unlimited.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="callout callout-tip"><span class="callout-icon">💡</span>
+                    <div class="callout-body"><strong>Skip overlap:</strong> If <code>isExecuting()</code> is true when
+                        the next interval fires, the tick is silently skipped.</div>
+                </div>
+                <div class="docs-code code-block" data-js-label="refresh.js" data-ts-label="refresh.ts">
+                    <div class="code-block-bar">
+                        <div class="code-block-dots">
+                            <div class="dot dot-r"></div>
+                            <div class="dot dot-y"></div>
+                            <div class="dot dot-g"></div>
+                        </div>
+                        <span class="code-block-label">refresh.js</span>
+                        <div class="lang-switcher">
+                            <button class="lang-btn" data-lang="js">JS</button>
+                            <button class="lang-btn" data-lang="ts">TS</button>
+                        </div>
+                    </div>
+                    <div class="code-pane" data-lang="js">
+                        <pre><span class="kw">const</span> poller = bone.<span class="fn">createRefresh</span>(
+  <span class="kw">async</span> (signal) => {
+    <span class="kw">const</span> data = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">"/api/feed"</span>, {
+      signal
+    }).<span class="fn">then</span>(r => r.<span class="fn">json</span>());
+    feed.<span class="fn">reset</span>(data);
+  },
+  {
+    interval:   <span class="nm">5000</span>,
+    scope,
+    immediate:  <span class="kw">true</span>,
+    backoff:    <span class="kw">true</span>,
+    maxRetries: <span class="nm">5</span>,
+    onError:    err => console.<span class="fn">warn</span>(err),
+  }
+);
+
+<span class="cm">// Pause when tab is hidden</span>
+document.<span class="fn">addEventListener</span>(<span class="str">"visibilitychange"</span>, () => {
+  document.hidden
+    ? poller.<span class="fn">pause</span>()
+    : poller.<span class="fn">resume</span>();
+});
+
+poller.<span class="fn">isPaused</span>();    <span class="cm">// → false</span>
+poller.<span class="fn">isExecuting</span>(); <span class="cm">// → true/false</span>
+poller.<span class="fn">stop</span>();</pre>
+                    </div>
+                    <div class="code-pane" data-lang="ts">
+                        <pre><span class="kw">import</span> { createRefresh, RefreshHandle, Collection } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">const</span> poller<span class="ty">: RefreshHandle</span> = <span class="fn">createRefresh</span>(
+  <span class="kw">async</span> (signal<span class="ty">: AbortSignal</span>) => {
+    <span class="kw">const</span> data = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">"/api/feed"</span>, { signal })
+      .<span class="fn">then</span>((r) => r.<span class="fn">json</span>());
+    feed.<span class="fn">reset</span>(data);
+  },
+  {
+    interval<span class="ty">:</span>   <span class="nm">5000</span>,
+    scope,
+    immediate<span class="ty">:</span>  <span class="kw">true</span>,
+    backoff<span class="ty">:</span>    <span class="kw">true</span>,
+    maxRetries<span class="ty">:</span> <span class="nm">5</span>,
+    onError<span class="ty">:</span>    (err<span class="ty">: unknown</span>) => console.<span class="fn">warn</span>(err),
+  }
+);
+
+document.<span class="fn">addEventListener</span>(<span class="str">"visibilitychange"</span>, () => {
+  document.hidden ? poller.<span class="fn">pause</span>() : poller.<span class="fn">resume</span>();
+});
+
+poller.<span class="fn">isPaused</span>();
+poller.<span class="fn">isExecuting</span>();
+poller.<span class="fn">stop</span>();</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="docs-section" id="elfromhtml">
+                <h2 class="docs-h2">
+                    <div class="d-icon" style="background:rgba(167,139,250,.15)">🛠</div>Utilities
+                </h2>
+                <h3 class="docs-h3">elFromHtml(html)</h3>
+                <div class="type-sig">elFromHtml(html: string) → Elements</div>
+                <p class="docs-p">Parses an HTML string via a <code>&lt;template&gt;</code> element and returns an
+                    <code>Elements</code> instance. Does not insert into the DOM.
+                </p>
+                <div class="docs-code code-block" data-js-label="elFromHtml.js" data-ts-label="elFromHtml.ts">
+                    <div class="code-block-bar">
+                        <div class="code-block-dots">
+                            <div class="dot dot-r"></div>
+                            <div class="dot dot-y"></div>
+                            <div class="dot dot-g"></div>
+                        </div>
+                        <span class="code-block-label">elFromHtml.js</span>
+                        <div class="lang-switcher">
+                            <button class="lang-btn" data-lang="js">JS</button>
+                            <button class="lang-btn" data-lang="ts">TS</button>
+                        </div>
+                    </div>
+                    <div class="code-pane" data-lang="js">
+                        <pre><span class="kw">const</span> card = bone.<span class="fn">elFromHtml</span>(<span class="str">`
+  &lt;div class="card"&gt;
+    &lt;h2&gt;Hello&lt;/h2&gt;
+    &lt;p&gt;World&lt;/p&gt;
+  &lt;/div&gt;
+`</span>);
+
+<span class="cm">// Manipulate before inserting</span>
+card.<span class="fn">find</span>(<span class="str">"h2"</span>).<span class="fn">text</span>(<span class="str">"BoneMarrow"</span>);
+bone.<span class="fn">el</span>(<span class="str">"#app"</span>).<span class="fn">append</span>(card);</pre>
+                    </div>
+                    <div class="code-pane" data-lang="ts">
+                        <pre><span class="kw">import</span> { elFromHtml, el, Elements } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">const</span> card<span class="ty">: Elements</span> = <span class="fn">elFromHtml</span>(<span class="str">`
+  &lt;div class="card"&gt;
+    &lt;h2&gt;Hello&lt;/h2&gt;
+    &lt;p&gt;World&lt;/p&gt;
+  &lt;/div&gt;
+`</span>);
+
+card.<span class="fn">find</span>(<span class="str">"h2"</span>).<span class="fn">text</span>(<span class="str">"BoneMarrow"</span>);
+<span class="fn">el</span>(<span class="str">"#app"</span>).<span class="fn">append</span>(card);</pre>
+                    </div>
+                </div>
+                <div id="createview"></div>
+                <h3 class="docs-h3">isElements(value)</h3>
+                <div class="type-sig">isElements(value: unknown) → boolean</div>
+                <p class="docs-p">Returns <code>true</code> if <code>value</code> is an <code>Elements</code> instance.
+                    Useful for TypeScript type-narrowing.</p>
+                <h3 class="docs-h3">createView(ViewClass, el, model, opts?)</h3>
+                <div class="type-sig">createView(Class, el: string | Element, model, opts?) → View instance</div>
+                <p class="docs-p">Resolves the element (accepts a CSS selector string or raw Element), throws if not
+                    found, and returns a new instance of the given View class.</p>
+                <div class="docs-code code-block" data-js-label="createView.js" data-ts-label="createView.ts">
+                    <div class="code-block-bar">
+                        <div class="code-block-dots">
+                            <div class="dot dot-r"></div>
+                            <div class="dot dot-y"></div>
+                            <div class="dot dot-g"></div>
+                        </div>
+                        <span class="code-block-label">createView.js</span>
+                        <div class="lang-switcher">
+                            <button class="lang-btn" data-lang="js">JS</button>
+                            <button class="lang-btn" data-lang="ts">TS</button>
+                        </div>
+                    </div>
+                    <div class="code-pane" data-lang="js">
+                        <pre><span class="kw">const</span> model = <span class="kw">new</span> bone.<span class="fn">Model</span>({ count: <span class="nm">0</span> });
+
+<span class="cm">// String selector — throws if not found</span>
+<span class="kw">const</span> view = bone.<span class="fn">createView</span>(
+  CounterView, <span class="str">"#counter"</span>, model
+);
+
+<span class="cm">// Or pass a raw Element</span>
+<span class="kw">const</span> el = document.<span class="fn">getElementById</span>(<span class="str">"counter"</span>);
+<span class="kw">const</span> view2 = bone.<span class="fn">createView</span>(CounterView, el, model);</pre>
+                    </div>
+                    <div class="code-pane" data-lang="ts">
+                        <pre><span class="kw">import</span> { createView, Model } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">interface</span> <span class="ty">CounterState</span> { count<span class="ty">: number</span>; }
+
+<span class="kw">const</span> model = <span class="kw">new</span> <span class="fn">Model</span><span class="gi">&lt;</span><span class="ty">CounterState</span><span class="gi">&gt;</span>({ count: <span class="nm">0</span> });
+
+<span class="kw">const</span> view = <span class="fn">createView</span>(
+  CounterView, <span class="str">"#counter"</span>, model
+);
+
+<span class="kw">const</span> el = document.<span class="fn">getElementById</span>(<span class="str">"counter"</span>) <span class="kw">as</span> <span class="ty">HTMLElement</span>;
+<span class="kw">const</span> view2 = <span class="fn">createView</span>(CounterView, el, model);</pre>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <footer>
+        <div>🦴 bonemarrow.js — the core of your app</div>
+        <div class="footer-links">
+            <a href="https://www.npmjs.com/package/bonemarrow" target="_blank">npm</a>
+            <a href="https://cdn.jsdelivr.net/npm/bonemarrow" target="_blank">CDN</a>
+        </div>
+    </footer>
+
+    <script src="shared.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var sections = document.querySelectorAll(".docs-section");
+            var links = document.querySelectorAll(".sidebar-link");
+
+            var io = new IntersectionObserver(function (entries) {
+                entries.forEach(function (e) {
+                    if (!e.isIntersecting) return;
+                    var id = e.target.id;
+                    links.forEach(function (l) {
+                        l.classList.toggle("active", l.getAttribute("href") === "#" + id);
+                    });
+                });
+            }, { rootMargin: "-20% 0px -70% 0px" });
+
+            sections.forEach(function (s) { io.observe(s); });
+
+            var fio = new IntersectionObserver(function (entries) {
+                entries.forEach(function (e) { if (e.isIntersecting) e.target.classList.add("visible"); });
+            }, { threshold: 0.05 });
+            sections.forEach(function (s) { s.classList.add("fade-up"); fio.observe(s); });
+        });
+    </script>
+</body>
+
+</html>

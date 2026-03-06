@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BoneMarrow.js — The Core of Your App</title>
+    <script>
+        (function () {
+            var t = localStorage.getItem("bm-theme") ||
+                (window.matchMedia("(prefers-color-scheme:light)").matches ? "light" : "dark");
+            document.documentElement.setAttribute("data-theme", t);
+        })();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bonemarrow"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="bonemarrow.css" />
+</head>
+
+<body>
+
+    <nav>
+        <a class="nav-logo" href="#">
+            <div class="logo-icon">🦴</div>
+            bonemarrow
+        </a>
+        <div class="nav-right">
+            <a class="nav-link" href="index.html" style="color:var(--accent)">Home</a>
+            <a class="nav-link" href="features.html">Features</a>
+            <a class="nav-link" href="docs.html">Docs</a>
+            <button id="theme-toggle">
+                <span id="theme-icon"></span>
+                <span id="theme-label"></span>
+            </button>
+            <a class="btn-coffee" href="https://paypal.me/KarthickRajS" target="_blank">☕ Buy me a coffee</a>
+        </div>
+    </nav>
+
+    <section>
+        <div class="hero">
+            <div class="hero-badge" id="hero-badge">✦ Lightweight &nbsp;·&nbsp; Zero dependencies &nbsp;·&nbsp;
+                TypeScript ready</div>
+            <h1 id="hero-title">The <span class="hero-gradient">core library</span><br />your app needs.</h1>
+            <p class="hero-sub" id="hero-sub">
+                BoneMarrow.js gives you <strong>Models</strong>, <strong>Collections</strong>,
+                <strong>Views</strong>, <strong>Emitters</strong>, and scope-aware utilities —
+                everything to build reactive UIs without a heavyweight framework.
+            </p>
+            <div class="hero-actions" id="hero-actions">
+                <a href="docs.html" class="btn-ghost">Read the Docs →</a>
+            </div>
+
+            <div class="hero-code code-block" id="hero-code" data-js-label="app.js" data-ts-label="app.ts">
+                <div class="code-block-bar">
+                    <div class="code-block-dots">
+                        <div class="dot dot-r"></div>
+                        <div class="dot dot-y"></div>
+                        <div class="dot dot-g"></div>
+                    </div>
+                    <span class="code-block-label">app.js</span>
+                    <div class="lang-switcher">
+                        <button class="lang-btn" data-lang="js">JS</button>
+                        <button class="lang-btn" data-lang="ts">TS</button>
+                    </div>
+                </div>
+                <div class="code-pane" data-lang="js">
+                    <pre><span class="cm">// Scope-bound reactive model</span>
+<span class="kw">const</span> scope = bone.<span class="fn">createScope</span>();
+<span class="kw">const</span> user  = <span class="kw">new</span> bone.<span class="fn">Model</span>({ name: <span class="str">"Ada"</span>, score: <span class="nm">0</span> }, scope);
+
+<span class="cm">// Watch a specific key</span>
+user.<span class="fn">watch</span>(<span class="str">"score"</span>, val =&gt; {
+  bone.<span class="fn">el</span>(<span class="str">"#score"</span>).<span class="fn">text</span>(<span class="str">`Score: ${val}`</span>);
+}, scope);
+
+<span class="cm">// Trigger change → watcher fires</span>
+user.<span class="fn">set</span>({ score: <span class="nm">42</span> });</pre>
+                </div>
+                <div class="code-pane" data-lang="ts">
+                    <pre><span class="kw">import</span> { createScope, Model, el } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">interface</span> <span class="ty">UserState</span> { name: <span class="ty">string</span>; score: <span class="ty">number</span>; }
+
+<span class="kw">const</span> scope = <span class="fn">createScope</span>();
+<span class="kw">const</span> user = <span class="kw">new</span> <span class="fn">Model</span><span class="gi">&lt;</span><span class="ty">UserState</span><span class="gi">&gt;</span>({ name: <span class="str">"Ada"</span>, score: <span class="nm">0</span> }, scope);
+
+<span class="cm">// val is inferred as number</span>
+user.<span class="fn">watch</span>(<span class="str">"score"</span>, (val) =&gt; {
+  <span class="fn">el</span>(<span class="str">"#score"</span>).<span class="fn">text</span>(<span class="str">`Score: ${val}`</span>);
+}, scope);
+
+user.<span class="fn">set</span>({ score: <span class="nm">42</span> });</pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features">
+        <div class="section-inner">
+            <p class="section-label fade-up">What's inside</p>
+            <h2 class="section-title fade-up">Every piece. No bloat.</h2>
+            <div class="divider fade-up"></div>
+            <p class="section-desc fade-up">BoneMarrow gives you the structural primitives for state, events, and DOM —
+                all scope-aware and leak-free by design.</p>
+            <div class="features-grid">
+                <div class="feature-card fade-up">
+                    <div class="feature-icon" style="background:rgba(167,139,250,.15)">📦</div>
+                    <div class="feature-title">Model</div>
+                    <div class="feature-desc">Key-value state with dirty-tracking, per-key <code>watch()</code>, and
+                        <code>autoRefresh()</code> from any JSON endpoint.
+                    </div>
+                </div>
+                <div class="feature-card fade-up">
+                    <div class="feature-icon" style="background:rgba(56,189,248,.15)">🗂</div>
+                    <div class="feature-title">Collection</div>
+                    <div class="feature-desc">Array-backed list with add/remove/update/sort/reset events. All standard
+                        array methods plus reactive hooks.</div>
+                </div>
+                <div class="feature-card fade-up">
+                    <div class="feature-icon" style="background:rgba(244,114,182,.15)">📡</div>
+                    <div class="feature-title">Emitter &amp; TypedEmitter</div>
+                    <div class="feature-desc">Full-featured typed event bus with <code>on</code>, <code>once</code>,
+                        <code>onceAsync</code>, <code>emit</code>, and <code>emitAsync</code>. Listener leak detection
+                        built in.
+                    </div>
+                </div>
+                <div class="feature-card fade-up">
+                    <div class="feature-icon" style="background:rgba(74,222,128,.15)">🎯</div>
+                    <div class="feature-title">el() &amp; Elements</div>
+                    <div class="feature-desc">Fluent DOM API. Select, traverse, mutate, and bind events with a chainable
+                        wrapper — no jQuery required.</div>
+                </div>
+                <div class="feature-card fade-up">
+                    <div class="feature-icon" style="background:rgba(251,191,36,.15)">🧱</div>
+                    <div class="feature-title">View</div>
+                    <div class="feature-desc">Component base class with child management, scope inheritance, and
+                        MutationObserver-powered auto-destroy.</div>
+                </div>
+                <div class="feature-card fade-up">
+                    <div class="feature-icon" style="background:rgba(249,115,22,.15)">⏱</div>
+                    <div class="feature-title">createRefresh</div>
+                    <div class="feature-desc">Interval-based poller with pause/resume, exponential backoff, max retries,
+                        and clean abort on scope disposal.</div>
+                </div>
+                <div class="feature-card fade-up">
+                    <div class="feature-icon" style="background:rgba(167,139,250,.15)">🔭</div>
+                    <div class="feature-title">Scope System</div>
+                    <div class="feature-desc">Hierarchical lifetimes via <code>createScope</code> /
+                        <code>createRootScope</code>. Disposal cascades to children and auto-cleans listeners and
+                        timers.
+                    </div>
+                </div>
+                <div class="feature-card fade-up">
+                    <div class="feature-icon" style="background:rgba(56,189,248,.15)">🌐</div>
+                    <div class="feature-title">fetchJson</div>
+                    <div class="feature-desc">Scope-aware fetch with timeout, retries, exponential backoff, and request
+                        deduplication. Cancels on scope disposal.</div>
+                </div>
+            </div>
+            <div class="stats-row">
+                <div class="stat-item fade-up">
+                    <div class="stat-num">~19kb</div>
+                    <div class="stat-label">minified</div>
+                </div>
+                <div class="stat-item fade-up">
+                    <div class="stat-num">0</div>
+                    <div class="stat-label">dependencies</div>
+                </div>
+                <div class="stat-item fade-up">
+                    <div class="stat-num">8</div>
+                    <div class="stat-label">core primitives</div>
+                </div>
+                <div class="stat-item fade-up">
+                    <div class="stat-num">100%</div>
+                    <div class="stat-label">scope-aware</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="api" class="api-section">
+        <div class="section-inner">
+            <p class="section-label fade-up">API Reference</p>
+            <h2 class="section-title fade-up">Intuitive by design.</h2>
+            <div class="divider fade-up"></div>
+            <p class="section-desc fade-up">A consistent, chainable API across all primitives.</p>
+            <div class="api-grid fade-up">
+                <div>
+                    <div class="api-tabs" id="api-tabs">
+                        <button class="api-tab active" data-tab="model">Model</button>
+                        <button class="api-tab" data-tab="collection">Collection</button>
+                        <button class="api-tab" data-tab="emitter">Emitter</button>
+                        <button class="api-tab" data-tab="el">el()</button>
+                        <button class="api-tab" data-tab="scope">Scope</button>
+                    </div>
+                    <div class="api-code-block code-block" id="api-block" data-js-label="model.js"
+                        data-ts-label="model.ts">
+                        <div class="code-block-bar">
+                            <div class="code-block-dots">
+                                <div class="dot dot-r"></div>
+                                <div class="dot dot-y"></div>
+                                <div class="dot dot-g"></div>
+                            </div>
+                            <span class="code-block-label" id="api-label">model.js</span>
+                            <div class="lang-switcher">
+                                <button class="lang-btn" data-lang="js">JS</button>
+                                <button class="lang-btn" data-lang="ts">TS</button>
+                            </div>
+                        </div>
+                        <div class="code-pane" data-lang="js">
+                            <pre id="api-pre-js"></pre>
+                        </div>
+                        <div class="code-pane" data-lang="ts">
+                            <pre id="api-pre-ts"></pre>
+                        </div>
+                    </div>
+                </div>
+                <ul class="api-desc-list" id="api-desc-list"></ul>
+            </div>
+        </div>
+    </section>
+
+    <section id="demo">
+        <div class="section-inner">
+            <p class="section-label fade-up">Interactive Demo</p>
+            <h2 class="section-title fade-up">See it work live.</h2>
+            <div class="divider fade-up"></div>
+            <div class="demo-box fade-up">
+                <div class="demo-title">Model + Collection + Emitter — all wired up with BoneMarrow</div>
+                <div class="demo-controls">
+                    <button class="demo-btn" id="btn-increment">⬆ Increment Score</button>
+                    <button class="demo-btn" id="btn-add-item">➕ Add to Collection</button>
+                    <button class="demo-btn" id="btn-remove-item">➖ Remove Last</button>
+                    <button class="demo-btn" id="btn-reset">↺ Reset Model</button>
+                    <button class="demo-btn" id="btn-emit">📡 Emit Event</button>
+                </div>
+                <div class="demo-output" id="demo-log"></div>
+                <div class="demo-model-state" id="model-state"></div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div>🦴 bonemarrow.js — the core of your app</div>
+        <div class="footer-links">
+            <a href="https://www.npmjs.com/package/bonemarrow" target="_blank">npm</a>
+            <a href="https://cdn.jsdelivr.net/npm/bonemarrow" target="_blank">CDN</a>
+        </div>
+    </footer>
+
+    <script src="shared.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // ── API TABS ──────────────────────────────────────────────────
+            var snippets = {
+                model: {
+                    jsLabel: "model.js", tsLabel: "model.ts",
+                    js: `<span class="kw">const</span> scope = bone.<span class="fn">createScope</span>();
+<span class="kw">const</span> m = <span class="kw">new</span> bone.<span class="fn">Model</span>({ count: <span class="nm">0</span>, name: <span class="str">"Ada"</span> }, scope);
+
+m.<span class="fn">set</span>({ count: <span class="nm">1</span> });         <span class="cm">// emits "change"</span>
+m.<span class="fn">get</span>(<span class="str">"count"</span>);            <span class="cm">// → 1</span>
+m.<span class="fn">isDirty</span>();              <span class="cm">// → true</span>
+m.<span class="fn">watch</span>(<span class="str">"count"</span>, v => {}); <span class="cm">// per-key watcher</span>
+m.<span class="fn">reset</span>();                <span class="cm">// back to initial</span>
+m.<span class="fn">autoRefresh</span>(url, { interval: <span class="nm">5000</span>, scope });`,
+                    ts: `<span class="kw">import</span> { createScope, Model } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">interface</span> <span class="ty">State</span> { count: <span class="ty">number</span>; name: <span class="ty">string</span>; }
+
+<span class="kw">const</span> scope = <span class="fn">createScope</span>();
+<span class="kw">const</span> m = <span class="kw">new</span> <span class="fn">Model</span><span class="gi">&lt;</span><span class="ty">State</span><span class="gi">&gt;</span>({ count: <span class="nm">0</span>, name: <span class="str">"Ada"</span> }, scope);
+
+m.<span class="fn">set</span>({ count: <span class="nm">1</span> });
+m.<span class="fn">get</span>(<span class="str">"count"</span>);            <span class="cm">// → number</span>
+m.<span class="fn">watch</span>(<span class="str">"count"</span>, (v<span class="ty">: number</span>) => {});
+m.<span class="fn">reset</span>();
+m.<span class="fn">autoRefresh</span>(url, { interval: <span class="nm">5000</span>, scope });`,
+                    methods: [
+                        { m: "set(data)", d: "Merge partial data, emit change for changed keys only." },
+                        { m: "get(key)", d: "Read a single value by key." },
+                        { m: "watch(key, fn, scope?)", d: "Subscribe to changes on a specific key." },
+                        { m: "isDirty()", d: "Returns true if any value differs from its initial value." },
+                        { m: "reset()", d: "Revert all values back to the initial state." },
+                        { m: "autoRefresh(url, opts)", d: "Poll a JSON endpoint and call set() on each tick." },
+                    ]
+                },
+                collection: {
+                    jsLabel: "collection.js", tsLabel: "collection.ts",
+                    js: `<span class="kw">const</span> col = <span class="kw">new</span> bone.<span class="fn">Collection</span>([<span class="str">"a"</span>, <span class="str">"b"</span>], scope);
+
+col.<span class="fn">add</span>(<span class="str">"c"</span>, <span class="str">"d"</span>);
+col.<span class="fn">remove</span>(x => x === <span class="str">"b"</span>);
+col.<span class="fn">update</span>(x => x === <span class="str">"a"</span>, <span class="str">"A"</span>);
+col.<span class="fn">sort</span>((a, b) => a &lt; b ? -<span class="nm">1</span> : <span class="nm">1</span>);
+col.<span class="fn">onAdd</span>(items => console.<span class="fn">log</span>(items));
+col.<span class="fn">onChange</span>(() => render(), scope);`,
+                    ts: `<span class="kw">import</span> { Collection } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">const</span> col = <span class="kw">new</span> <span class="fn">Collection</span><span class="gi">&lt;</span><span class="ty">string</span><span class="gi">&gt;</span>([<span class="str">"a"</span>, <span class="str">"b"</span>], scope);
+
+col.<span class="fn">add</span>(<span class="str">"c"</span>, <span class="str">"d"</span>);
+col.<span class="fn">remove</span>((x<span class="ty">: string</span>) => x === <span class="str">"b"</span>);
+col.<span class="fn">sort</span>((a<span class="ty">: string</span>, b<span class="ty">: string</span>) => a &lt; b ? -<span class="nm">1</span> : <span class="nm">1</span>);
+col.<span class="fn">onAdd</span>((items<span class="ty">: string[]</span>) => console.<span class="fn">log</span>(items));
+col.<span class="fn">onChange</span>(() => render(), scope);`,
+                    methods: [
+                        { m: "add(...items)", d: "Push items and emit 'add' event." },
+                        { m: "remove(predicate)", d: "Remove matching items and emit 'remove'." },
+                        { m: "update(pred, patch)", d: "Patch matching items and emit 'update'." },
+                        { m: "sort(compareFn)", d: "Sort in-place and emit 'sort'." },
+                        { m: "onChange(fn, scope?)", d: "Fires on any mutation: add, remove, update, reset, sort." },
+                        { m: "autoRefresh(url, opts)", d: "Poll a JSON endpoint and call reset() on each tick." },
+                    ]
+                },
+                emitter: {
+                    jsLabel: "emitter.js", tsLabel: "emitter.ts",
+                    js: `<span class="kw">const</span> e = <span class="kw">new</span> bone.<span class="fn">Emitter</span>({ debug: <span class="kw">true</span> });
+
+e.<span class="fn">on</span>(<span class="str">"login"</span>, ({ user }) => {}, scope);
+e.<span class="fn">once</span>(<span class="str">"ready"</span>, () => init());
+<span class="kw">const</span> [data] = <span class="kw">await</span> e.<span class="fn">onceAsync</span>(<span class="str">"data"</span>);
+
+e.<span class="fn">emit</span>(<span class="str">"login"</span>, { user: <span class="str">"Ada"</span> });
+<span class="kw">await</span> e.<span class="fn">emitAsync</span>(<span class="str">"save"</span>);
+e.<span class="fn">listenerCount</span>(<span class="str">"login"</span>); <span class="cm">// → 1</span>`,
+                    ts: `<span class="kw">import</span> { TypedEmitter } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">type</span> <span class="ty">Events</span> = {
+  login<span class="ty">:</span> [{ user: <span class="ty">string</span> }];
+  ready<span class="ty">:</span> [];
+  data<span class="ty">:</span>  [<span class="ty">unknown</span>];
+  save<span class="ty">:</span>  [];
+};
+<span class="kw">const</span> e = <span class="kw">new</span> <span class="fn">TypedEmitter</span><span class="gi">&lt;</span><span class="ty">Events</span><span class="gi">&gt;</span>({ debug: <span class="kw">true</span> });
+
+e.<span class="fn">on</span>(<span class="str">"login"</span>, ({ user }) => {}, scope); <span class="cm">// user: string ✓</span>
+e.<span class="fn">once</span>(<span class="str">"ready"</span>, () => init());
+<span class="kw">const</span> [data] = <span class="kw">await</span> e.<span class="fn">onceAsync</span>(<span class="str">"data"</span>);
+e.<span class="fn">emit</span>(<span class="str">"login"</span>, { user: <span class="str">"Ada"</span> });`,
+                    methods: [
+                        { m: "on(event, fn, scope?)", d: "Subscribe. Pass a scope for auto-cleanup on disposal." },
+                        { m: "once(event, fn)", d: "Subscribe to exactly one emission then auto-remove." },
+                        { m: "onceAsync(event, scope?)", d: "Returns a Promise that resolves on next emission." },
+                        { m: "emit(event, ...args)", d: "Synchronously call all handlers." },
+                        { m: "emitAsync(event, ...args)", d: "Async handlers; throws AggregateError on failure." },
+                        { m: "listenerCount(event)", d: "Returns number of active listeners for an event." },
+                    ]
+                },
+                el: {
+                    jsLabel: "el.js", tsLabel: "el.ts",
+                    js: `<span class="kw">const</span> btn = bone.<span class="fn">el</span>(<span class="str">"#my-btn"</span>);
+
+btn.<span class="fn">addClass</span>(<span class="str">"active"</span>).<span class="fn">text</span>(<span class="str">"Clicked!"</span>);
+btn.<span class="fn">on</span>(<span class="str">"click"</span>, e => {}, scope);
+
+bone.<span class="fn">el</span>(<span class="str">".cards"</span>)
+  .<span class="fn">filter</span>(<span class="str">".visible"</span>)
+  .<span class="fn">each</span>(card => {
+    bone.<span class="fn">el</span>(card).<span class="fn">css</span>(<span class="str">"opacity"</span>, <span class="str">"1"</span>);
+  });`,
+                    ts: `<span class="kw">import</span> { el, Elements } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">const</span> btn<span class="ty">: Elements</span> = <span class="fn">el</span>(<span class="str">"#my-btn"</span>);
+
+btn.<span class="fn">addClass</span>(<span class="str">"active"</span>).<span class="fn">text</span>(<span class="str">"Clicked!"</span>);
+btn.<span class="fn">on</span>(<span class="str">"click"</span>, (e<span class="ty">: Event</span>) => {}, scope);
+
+<span class="fn">el</span>(<span class="str">".cards"</span>)
+  .<span class="fn">filter</span>(<span class="str">".visible"</span>)
+  .<span class="fn">each</span>((card<span class="ty">: Element</span>) => {
+    <span class="fn">el</span>(card).<span class="fn">css</span>(<span class="str">"opacity"</span>, <span class="str">"1"</span>);
+  });`,
+                    methods: [
+                        { m: "el(selector | Element)", d: "Wrap a selector string or Element in a chainable Elements instance." },
+                        { m: "text(str?) / html(str?)", d: "Get or set textContent / innerHTML." },
+                        { m: "addClass / removeClass / toggleClass", d: "Mutate CSS classes on all matched elements." },
+                        { m: "on(event, fn, scope?)", d: "Add event listener; scope auto-removes on disposal." },
+                        { m: "css(prop, val) / attr(key, val)", d: "Set CSS custom properties or HTML attributes." },
+                        { m: "find / filter / parent / closest", d: "Traverse the DOM relative to matched elements." },
+                    ]
+                },
+                scope: {
+                    jsLabel: "scope.js", tsLabel: "scope.ts",
+                    js: `<span class="cm">// Browser scope — auto-cleans on pagehide</span>
+<span class="kw">const</span> scope = bone.<span class="fn">createScope</span>();
+<span class="kw">const</span> child = scope.<span class="fn">createChild</span>();
+
+scope.<span class="fn">onDispose</span>(() => cleanup());
+bone.<span class="fn">isScopeDisposed</span>(scope); <span class="cm">// → false</span>
+
+scope.<span class="fn">dispose</span>(); <span class="cm">// cascades to child</span>
+
+<span class="cm">// Node.js / SSR / workers:</span>
+<span class="kw">const</span> root = bone.<span class="fn">createRootScope</span>();`,
+                    ts: `<span class="kw">import</span> { createScope, createRootScope, Scope } <span class="kw">from</span> <span class="str">"bonemarrow"</span>;
+
+<span class="kw">const</span> scope<span class="ty">: Scope</span> = <span class="fn">createScope</span>();
+<span class="kw">const</span> child<span class="ty">: Scope</span> = scope.<span class="fn">createChild</span>();
+
+scope.<span class="fn">onDispose</span>(() => cleanup());
+scope.signal; <span class="cm">// AbortSignal — pass to fetch(), addEventListener() etc.</span>
+
+scope.<span class="fn">dispose</span>(); <span class="cm">// cascades to child</span>
+
+<span class="kw">const</span> root<span class="ty">: Scope</span> = <span class="fn">createRootScope</span>({ debug: <span class="kw">true</span> });`,
+                    methods: [
+                        { m: "createScope(opts?)", d: "Browser scope. Shares a global root that cleans up on pagehide." },
+                        { m: "createRootScope(opts?)", d: "Standalone root scope for Node.js, workers, or SSR." },
+                        { m: "createChild()", d: "Create a child scope whose lifetime is tied to the parent." },
+                        { m: "onDispose(fn)", d: "Register a cleanup callback, called in reverse order on disposal." },
+                        { m: "dispose()", d: "Dispose this scope and all children. Aborts the scope signal." },
+                        { m: "isScopeDisposed(scope)", d: "Returns true if the scope's AbortSignal has been aborted." },
+                    ]
+                },
+            };
+
+            var currentTab = "model";
+
+            function renderTab(name) {
+                currentTab = name;
+                var s = snippets[name];
+                var lang = localStorage.getItem("bm-lang") || "js";
+                var block = document.getElementById("api-block");
+                block.dataset.jsLabel = s.jsLabel;
+                block.dataset.tsLabel = s.tsLabel;
+                document.getElementById("api-label").textContent = lang === "ts" ? s.tsLabel : s.jsLabel;
+                document.getElementById("api-pre-js").innerHTML = s.js;
+                document.getElementById("api-pre-ts").innerHTML = s.ts;
+                document.getElementById("api-desc-list").innerHTML = s.methods.map(function (m) {
+                    return '<li><span class="method">' + m.m + '</span><span>' + m.d + '</span></li>';
+                }).join("");
+            }
+
+            renderTab("model");
+
+            document.getElementById("api-tabs").querySelectorAll(".api-tab").forEach(function (tab) {
+                tab.addEventListener("click", function () {
+                    document.getElementById("api-tabs").querySelectorAll(".api-tab").forEach(function (t) { t.classList.remove("active"); });
+                    tab.classList.add("active");
+                    renderTab(tab.dataset.tab);
+                });
+            });
+
+            // Re-render API label when lang switches
+            document.addEventListener("bm-lang-changed", function (e) { renderTab(currentTab); });
+
+            // ── HERO ENTRANCE ─────────────────────────────────────────────
+            [["#hero-badge", 80], ["#hero-title", 180], ["#hero-sub", 280], ["#hero-actions", 360], ["#hero-code", 460]].forEach(function (p) {
+                setTimeout(function () { var el = document.querySelector(p[0]); if (el) el.classList.add("visible"); }, p[1]);
+            });
+
+            var io = new IntersectionObserver(function (entries) {
+                entries.forEach(function (e) { if (e.isIntersecting) e.target.classList.add("visible"); });
+            }, { threshold: 0.1 });
+            document.querySelectorAll(".fade-up").forEach(function (el) { io.observe(el); });
+
+            // ── LIVE DEMO ─────────────────────────────────────────────────
+            var ds = bone.createScope();
+            var dm = new bone.Model({ score: 0, clicks: 0, name: "visitor" }, ds);
+            var dc = new bone.Collection([], ds);
+            var de = new bone.Emitter();
+            var ll = ['<div class="log-line info">// BoneMarrow live demo ready — press a button above.</div>'];
+
+            function log(msg, type) {
+                ll.push('<div class="log-line ' + (type || "") + '">' + msg + '</div>');
+                if (ll.length > 7) ll.shift();
+                document.getElementById("demo-log").innerHTML = ll.join("");
+            }
+
+            function renderState() {
+                document.getElementById("model-state").innerHTML = Object.entries(dm.getAll()).map(function (kv) {
+                    return '<div class="state-pill" id="pill-' + kv[0] + '"><div class="key">' + kv[0] + '</div><div class="val">' + JSON.stringify(kv[1]) + '</div></div>';
+                }).join("");
+            }
+
+            dm.onChange(function (changed) {
+                renderState();
+                Object.keys(changed).forEach(function (k) {
+                    var p = document.getElementById("pill-" + k);
+                    if (!p) return;
+                    p.classList.add("changed");
+                    setTimeout(function () { p.classList.remove("changed"); }, 700);
+                });
+            });
+            renderState();
+
+            document.getElementById("btn-increment").addEventListener("click", function () {
+                var n = dm.get("score") + 1; dm.set({ score: n, clicks: dm.get("clicks") + 1 });
+                log('model.set({ score: ' + n + ' })  <span style="color:var(--text-muted)">→ onChange fired</span>', "success");
+            });
+            document.getElementById("btn-add-item").addEventListener("click", function () {
+                var item = "item_" + (dc.length + 1); dc.add(item);
+                log('collection.add("' + item + '")  <span style="color:var(--text-muted)">→ length: ' + dc.length + '</span>', "info");
+            });
+            document.getElementById("btn-remove-item").addEventListener("click", function () {
+                if (!dc.length) { log("collection is empty — nothing to remove", "warn"); return; }
+                var r = dc.removeAt(dc.length - 1);
+                log('collection.removeAt(' + dc.length + ')  <span style="color:var(--text-muted)">→ removed: "' + r + '"</span>', "info");
+            });
+            document.getElementById("btn-reset").addEventListener("click", function () {
+                dm.reset(); log('model.reset()  <span style="color:var(--text-muted)">→ reverted to initial state</span>', "warn");
+            });
+            document.getElementById("btn-emit").addEventListener("click", function () {
+                var ts = Date.now(); de.emit("ping", { ts: ts });
+                log('emitter.emit("ping", { ts: ' + ts + ' })', "success");
+            });
+            de.on("ping", function (p) {
+                log('  ↳ handler received ping at <span style="color:var(--accent)">' + p.ts + '</span>', "info");
+            }, ds);
+
+        });
+    </script>
+</body>
+
+</html>
